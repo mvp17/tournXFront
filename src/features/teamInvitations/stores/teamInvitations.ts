@@ -1,4 +1,4 @@
-import http from '../http-common';
+import http from '../../../http-common';
 import { defineStore } from 'pinia';
 
 export const useTeamInvitationsStore = defineStore('teamInvitation', {

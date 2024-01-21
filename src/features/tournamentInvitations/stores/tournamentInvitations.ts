@@ -1,4 +1,4 @@
-import http from '../http-common';
+import http from '../../../http-common';
 import { defineStore } from 'pinia';
 
 export const useTournamentInvitationsStore = defineStore(
@@ -14,7 +14,7 @@ export const useTournamentInvitationsStore = defineStore(
         state.tournamentInvitations = apiResponse.data;
       },
       getById: (state) => {
-        return (id) =>
+        return (id: number) =>
           state.tournamentInvitations.find(
             (tournamentInvitation) => tournamentInvitation.id === id
           );

@@ -1,13 +1,13 @@
 import { createWebHistory, createRouter } from 'vue-router';
-import Home from '@/views/Home.vue';
-import Tournaments from '@/views/Tournaments.vue';
+import Home from '../features/home/Home.vue';
+import Tournaments from '../features/tournaments/views/Tournaments.vue';
 //import Matches from "@/views/Matches.vue";
-import MatchResults from '@/views/MatchResults.vue';
-import Players from '@/views/Players.vue';
-import Rounds from '@/views/Rounds.vue';
-import TeamInvitations from '@/views/TeamInvitations.vue';
-import Teams from '@/views/Teams.vue';
-import TournamentInvitations from '@/views/TournamentInvitations.vue';
+import MatchResults from '../features/matchResults/views/MatchResults.vue';
+import Players from '../features/players/views/Players.vue';
+import Rounds from '../features/rounds/Rounds.vue';
+import TeamInvitations from '../features/teamInvitations/views/TeamInvitations.vue';
+import Teams from '../features/teams/views/Teams.vue';
+import TournamentInvitations from '../features/tournamentInvitations/views/TournamentInvitations.vue';
 
 export const routes = [
   {

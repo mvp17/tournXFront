@@ -253,3 +253,4 @@ function clear() {
   }
 }
 </script>
+../features/tournaments/stores/tournaments

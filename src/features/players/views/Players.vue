@@ -172,3 +172,4 @@ function clear() {
   }
 }
 </script>
+../features/players/stores/players

@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import { routes } from '../router';
+import { routes } from '../plugins/router';
 export default {
   name: 'Header-component',
   data: () => ({

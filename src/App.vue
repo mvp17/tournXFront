@@ -14,7 +14,7 @@ h1 {
 </style>
 
 <script lang="ts">
-import Toolbar from '@/components/Toolbar.vue';
+import Toolbar from './components/Toolbar.vue';
 
 export default {
   name: 'AppHeader',

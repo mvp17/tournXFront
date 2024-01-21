@@ -1,16 +1,16 @@
 <template>
-  <h1>Tournament invitations</h1>
+  <h1>Team invitations</h1>
   <v-row>
     <v-col>
       <form>
         <v-select
-          v-model="state.selectTournament"
-          :items="tournaments"
-          :error-messages="v$.selectTournament.$errors.map((e) => e.$message)"
-          label="Tournament"
+          v-model="state.selectPlayer"
+          :items="players"
+          :error-messages="v$.selectPlayer.$errors.map((e) => e.$message)"
+          label="Player"
           required
-          @change="v$.selectTournament.$touch"
-          @blur="v$.selectTournament.$touch"
+          @change="v$.selectPlayer.$touch"
+          @blur="v$.selectPlayer.$touch"
         ></v-select>
 
         <v-select
@@ -41,19 +41,19 @@
       <v-table fixed-header>
         <thead>
           <tr>
-            <th class="text-left">Tournament</th>
+            <th class="text-left">Player</th>
             <th class="text-left">Team</th>
             <th class="text-left">Message</th>
           </tr>
         </thead>
         <tbody>
           <tr
-            v-for="tournamentInvitation in tournamentInvitationsList"
-            :key="tournamentInvitation.match"
+            v-for="teamInvitation in teamInvitationsList"
+            :key="teamInvitation.team"
           >
-            <td>{{ tournamentInvitation.tournament }}</td>
-            <td>{{ tournamentInvitation.team }}</td>
-            <td>{{ tournamentInvitation.message }}</td>
+            <td>{{ teamInvitation.player }}</td>
+            <td>{{ teamInvitation.team }}</td>
+            <td>{{ teamInvitation.message }}</td>
           </tr>
         </tbody>
       </v-table>
@@ -65,24 +65,24 @@
 export default {
   data() {
     return {
-      tournamentInvitationsList: [
+      teamInvitationsList: [
         {
-          tournament: '1',
+          player: '1',
           team: 'abc',
           message: 'qwer',
         },
         {
-          tournament: '2',
+          player: '2',
           team: 'abc',
           message: 'tyui',
         },
         {
-          tournament: '3',
+          player: '3',
           team: 'abc',
           message: 'asdfg',
         },
         {
-          tournament: '4',
+          player: '4',
           team: 'abc',
           message: 'hjkl',
         },
@@ -97,17 +97,15 @@ import { reactive } from 'vue';
 import { useVuelidate } from '@vuelidate/core';
 import { required } from '@vuelidate/validators';
 import { onMounted } from 'vue';
+import { useTeamInvitationsStore } from '../stores/teamInvitations';
 import { computed } from '@vue/reactivity';
-import { useTournamentInvitationsStore } from '../stores/tournamentInvitations';
 
-const tournamentInvitationsStore = useTournamentInvitationsStore();
-const tournamentInvitations = computed(
-  () => tournamentInvitationsStore.tournamentInvitations
-);
+const teamInvitationsStore = useTeamInvitationsStore();
+const teamInvitations = computed(() => teamInvitationsStore.teamInvitations);
 
 const initialState = {
   message: '',
-  selectTournament: null,
+  selectPlayer: null,
   selectTeam: null,
 };
 
@@ -115,24 +113,19 @@ const state = reactive({
   ...initialState,
 });
 
-const tournaments = [
-  'Tournament 1',
-  'Tournament 2',
-  'Tournament 3',
-  'Tournament 4',
-];
+const players = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
 const teams = ['Team 1', 'Team 2', 'Team 3', 'Team 4'];
 
 const rules = {
   message: { required },
-  selectTournament: { required },
+  selectPlayer: { required },
   selectTeam: { required },
 };
 
 const v$ = useVuelidate(rules, state);
 
 onMounted(() => {
-  //getTournamentInvitations();
+  getTeamInvitations();
 });
 
 async function submit() {
@@ -142,12 +135,12 @@ async function submit() {
     for (const key of Object.keys(initialState)) {
       request[key] = state[key];
     }
-    //tournamentInvitationsStore.addTournamentInvitation(request);
+    //teamInvitations.addTeamInvitation(request);
   }
 }
 
-function getTournamentInvitations() {
-  tournamentInvitationsStore.getAll();
+function getTeamInvitations() {
+  //teamInvitationsStore.getAll();
 }
 
 function clear() {
@@ -158,3 +151,4 @@ function clear() {
   }
 }
 </script>
+../features/teamInvitations/stores/teamInvitations
