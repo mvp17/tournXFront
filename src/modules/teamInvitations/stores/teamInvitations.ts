@@ -1,10 +1,10 @@
 import http from '../../../http-common';
 import { defineStore } from 'pinia';
+import { TeamInvitation } from '../models/teamInvitation';
 
 export const useTeamInvitationsStore = defineStore('teamInvitation', {
   state: () => ({
-    /** @type {{ id: number, player: string, team: string, message: string }[]} */
-    teamInvitations: [],
+    teamInvitations: [] as TeamInvitation[],
   }),
   getters: {
     getAll: async (state) => {
@@ -12,21 +12,21 @@ export const useTeamInvitationsStore = defineStore('teamInvitation', {
       state.teamInvitations = apiResponse.data;
     },
     getById: (state) => {
-      return (id) =>
+      return (id: number) =>
         state.teamInvitations.find(
           (teamInvitation) => teamInvitation.id === id
         );
     },
   },
   actions: {
-    async addTeamInvitation(newTeamInvitation) {
+    async addTeamInvitation(newTeamInvitation: TeamInvitation) {
       const apiResponse = await http.post(
         '/team-invitations',
         newTeamInvitation
       );
       this.teamInvitations = [...this.teamInvitations, apiResponse.data];
     },
-    async updateTeamInvitation(id, currentTeamInvitation) {
+    async updateTeamInvitation(id: number, currentTeamInvitation: TeamInvitation) {
       const apiResponse = await http.put(
         `/team-invitations/${id}`,
         currentTeamInvitation
@@ -37,7 +37,7 @@ export const useTeamInvitationsStore = defineStore('teamInvitation', {
       teamInvitationsState.push(apiResponse.data);
       this.teamInvitations = teamInvitationsState;
     },
-    async removeTeamInvitation(id) {
+    async removeTeamInvitation(id: number) {
       await http.delete(`/team-invitations/${id}`);
       this.teamInvitations = this.teamInvitations.filter(
         (teamInvitation) => teamInvitation.id !== id

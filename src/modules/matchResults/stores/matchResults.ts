@@ -1,10 +1,10 @@
 import http from '../../../http-common';
 import { defineStore } from 'pinia';
+import { MatchResult } from '../models/matchResult';
 
 export const useMatchResultsStore = defineStore('matchResults', {
   state: () => ({
-    /** @type {{ id: number, match: string, winnerTeam: string, result: string }[]} */
-    matchResults: [],
+    matchResults: [] as MatchResult[],
   }),
   getters: {
     getAll: async (state) => {
@@ -12,16 +12,16 @@ export const useMatchResultsStore = defineStore('matchResults', {
       state.matchResults = apiResponse.data;
     },
     getById: (state) => {
-      return (id) =>
+      return (id: number) =>
         state.matchResults.find((matchResult) => matchResult.id === id);
     },
   },
   actions: {
-    async addMatchResult(newMatchResult) {
+    async addMatchResult(newMatchResult: MatchResult) {
       const apiResponse = await http.post('/match-results', newMatchResult);
       this.matchResults = [...this.matchResults, apiResponse.data];
     },
-    async updateMatchResult(id, currentMatchResult) {
+    async updateMatchResult(id: number, currentMatchResult: MatchResult) {
       const apiResponse = await http.put(
         `/match-results/${id}`,
         currentMatchResult
@@ -32,7 +32,7 @@ export const useMatchResultsStore = defineStore('matchResults', {
       matchResultState.push(apiResponse.data);
       this.matchResults = matchResultState;
     },
-    async removeMatchResult(id) {
+    async removeMatchResult(id: number) {
       await http.delete(`/match-results/${id}`);
       this.matchResults = this.matchResults.filter(
         (matchResult) => matchResult.id !== id

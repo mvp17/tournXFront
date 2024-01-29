@@ -1,12 +1,12 @@
 import http from '../../../http-common';
 import { defineStore } from 'pinia';
+import { TournamentInvitation } from '../models/tournamentInvitation';
 
 export const useTournamentInvitationsStore = defineStore(
   'tournamentInvitation',
   {
     state: () => ({
-      /** @type {{ id: number, tournament: string, team: string, message: string }[]} */
-      tournamentInvitations: [],
+      tournamentInvitations: [] as TournamentInvitation[],
     }),
     getters: {
       getAll: async (state) => {
@@ -21,7 +21,7 @@ export const useTournamentInvitationsStore = defineStore(
       },
     },
     actions: {
-      async addTournamentInvitation(newTournamentInvitation) {
+      async addTournamentInvitation(newTournamentInvitation: TournamentInvitation) {
         const apiResponse = await http.post(
           '/tournament-invitations',
           newTournamentInvitation
@@ -31,7 +31,7 @@ export const useTournamentInvitationsStore = defineStore(
           apiResponse.data,
         ];
       },
-      async updateTournamentInvitation(id, currentTournamentInvitation) {
+      async updateTournamentInvitation(id: number, currentTournamentInvitation: TournamentInvitation) {
         const apiResponse = await http.put(
           `/tournament-invitations/${id}`,
           currentTournamentInvitation
@@ -42,7 +42,7 @@ export const useTournamentInvitationsStore = defineStore(
         tournamentInvitationsState.push(apiResponse.data);
         this.tournamentInvitations = tournamentInvitationsState;
       },
-      async removeTournamentInvitation(id) {
+      async removeTournamentInvitation(id: number) {
         await http.delete(`/tournament-invitations/${id}`);
         this.tournamentInvitations = this.tournamentInvitations.filter(
           (tournamentInvitation) => tournamentInvitation.id !== id
