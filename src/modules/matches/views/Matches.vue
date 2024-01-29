@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { mockMatches } from '../..//mocks';
+import { mockMatches } from '../../../mocks';
 export default {
   data() {
     return {

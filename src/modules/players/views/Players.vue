@@ -5,7 +5,7 @@
       <form>
         <v-text-field
           v-model="state.username"
-          :error-messages="v$.username.$errors.map((e) => e.$message)"
+          :error-messages="(v$.username.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Username"
           required
@@ -15,7 +15,7 @@
 
         <v-text-field
           v-model="state.email"
-          :error-messages="v$.email.$errors.map((e) => e.$message)"
+          :error-messages="(v$.email.$errors as VuelidateError[]).map((e) => e.$message)"
           label="E-mail"
           required
           @input="v$.email.$touch"
@@ -25,7 +25,7 @@
         <v-text-field
           v-model="state.password"
           :append-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-          :error-messages="v$.password.$errors.map((e) => e.$message)"
+          :error-messages="(v$.password.$errors as VuelidateError[]).map((e) => e.$message)"
           :type="show ? 'text' : 'password'"
           label="Password"
           required
@@ -96,6 +96,7 @@ import { email, required, minLength, helpers } from '@vuelidate/validators';
 import { usePlayersStore } from '../stores/players';
 import { onMounted } from 'vue';
 import { computed } from '@vue/reactivity';
+import { VuelidateError } from '../../../core/interfaces/VuelidateError';
 
 const playersStore = usePlayersStore();
 const players = computed(() => playersStore.players);
@@ -118,25 +119,25 @@ const rules = {
     minLength: minLength(6),
     containsUppercase: helpers.withMessage(
       'The password requires an uppercase',
-      (value) => {
+      (value: string) => {
         return /[A-Z]/.test(value);
       }
     ),
     containsLowercase: helpers.withMessage(
       'The password requires a lowercase',
-      (value) => {
+      (value: string) => {
         return /[a-z]/.test(value);
       }
     ),
     containsNumber: helpers.withMessage(
       'The password requires a number',
-      (value) => {
+      (value: string) => {
         return /[0-9]/.test(value);
       }
     ),
     containsSpecial: helpers.withMessage(
       'The password requires a special character',
-      (value) => {
+      (value: string) => {
         return /[#?!@$%^&*-]/.test(value);
       }
     ),
@@ -172,4 +173,3 @@ function clear() {
   }
 }
 </script>
-../features/players/stores/players

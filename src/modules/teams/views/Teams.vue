@@ -5,7 +5,7 @@
       <form>
         <v-text-field
           v-model="state.name"
-          :error-messages="v$.name.$errors.map((e) => e.$message)"
+          :error-messages="(v$.name.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Name"
           required
@@ -15,7 +15,7 @@
 
         <v-text-field
           v-model="state.level"
-          :error-messages="v$.level.$errors.map((e) => e.$message)"
+          :error-messages="(v$.level.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Level"
           required
@@ -25,7 +25,7 @@
 
         <v-text-field
           v-model="state.game"
-          :error-messages="v$.game.$errors.map((e) => e.$message)"
+          :error-messages="(v$.game.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Game"
           required
@@ -35,7 +35,7 @@
 
         <v-text-field
           v-model="state.maxPlayers"
-          :error-messages="v$.maxPlayers.$errors.map((e) => e.$message)"
+          :error-messages="(v$.maxPlayers.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Maximum of players"
           required
@@ -129,6 +129,7 @@ import { required, numeric } from '@vuelidate/validators';
 import { onMounted } from 'vue';
 import { computed } from '@vue/reactivity';
 import { useTeamsStore } from '../stores/teams';
+import { VuelidateError } from '../../../core/interfaces/VuelidateError';
 
 const teamsStore = useTeamsStore();
 const teams = computed(() => teamsStore.teams);
@@ -137,7 +138,7 @@ const initialState = {
   name: '',
   level: '',
   game: '',
-  maxPlayers: '',
+  maxPlayers: 0,
 };
 
 const state = reactive({
@@ -180,4 +181,3 @@ function clear() {
   }
 }
 </script>
-../features/teams/stores/teams

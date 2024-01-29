@@ -6,7 +6,7 @@
         <v-select
           v-model="state.selectPlayer"
           :items="players"
-          :error-messages="v$.selectPlayer.$errors.map((e) => e.$message)"
+          :error-messages="(v$.selectPlayer.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Player"
           required
           @change="v$.selectPlayer.$touch"
@@ -16,7 +16,7 @@
         <v-select
           v-model="state.selectTeam"
           :items="teams"
-          :error-messages="v$.selectTeam.$errors.map((e) => e.$message)"
+          :error-messages="(v$.selectTeam.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Team"
           required
           @change="v$.selectTeam.$touch"
@@ -25,7 +25,7 @@
 
         <v-text-field
           v-model="state.message"
-          :error-messages="v$.message.$errors.map((e) => e.$message)"
+          :error-messages="(v$.message.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Message"
           required
@@ -99,6 +99,7 @@ import { required } from '@vuelidate/validators';
 import { onMounted } from 'vue';
 import { useTeamInvitationsStore } from '../stores/teamInvitations';
 import { computed } from '@vue/reactivity';
+import { VuelidateError } from '../../../core/interfaces/VuelidateError';
 
 const teamInvitationsStore = useTeamInvitationsStore();
 const teamInvitations = computed(() => teamInvitationsStore.teamInvitations);
@@ -151,4 +152,3 @@ function clear() {
   }
 }
 </script>
-../features/teamInvitations/stores/teamInvitations

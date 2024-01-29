@@ -6,7 +6,7 @@
         <v-select
           v-model="state.selectTournament"
           :items="tournaments"
-          :error-messages="v$.selectTournament.$errors.map((e) => e.$message)"
+          :error-messages="(v$.selectTournament.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Tournament"
           required
           @change="v$.selectTournament.$touch"
@@ -16,7 +16,7 @@
         <v-select
           v-model="state.selectTeam"
           :items="teams"
-          :error-messages="v$.selectTeam.$errors.map((e) => e.$message)"
+          :error-messages="(v$.selectTeam.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Team"
           required
           @change="v$.selectTeam.$touch"
@@ -25,7 +25,7 @@
 
         <v-text-field
           v-model="state.message"
-          :error-messages="v$.message.$errors.map((e) => e.$message)"
+          :error-messages="(v$.message.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Message"
           required
@@ -49,7 +49,7 @@
         <tbody>
           <tr
             v-for="tournamentInvitation in tournamentInvitationsList"
-            :key="tournamentInvitation.match"
+            :key="tournamentInvitation.tournament"
           >
             <td>{{ tournamentInvitation.tournament }}</td>
             <td>{{ tournamentInvitation.team }}</td>
@@ -99,6 +99,7 @@ import { required } from '@vuelidate/validators';
 import { onMounted } from 'vue';
 import { computed } from '@vue/reactivity';
 import { useTournamentInvitationsStore } from '../stores/tournamentInvitations';
+import { VuelidateError } from '../../../core/interfaces/VuelidateError';
 
 const tournamentInvitationsStore = useTournamentInvitationsStore();
 const tournamentInvitations = computed(
@@ -158,4 +159,3 @@ function clear() {
   }
 }
 </script>
-../features/tournamentInvitations/stores/tournamentInvitations

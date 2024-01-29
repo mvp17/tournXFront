@@ -14,8 +14,8 @@
 </template>
 
 <script lang="ts">
-import Matches from '../matches/Matches.vue';
-import { teamAv, teamGG, teamF4 } from '../../mocks';
+import Matches from '../../matches/views/Matches.vue';
+import { teamAv, teamGG, teamF4 } from '../../../mocks';
 export default {
   components: { Matches },
   data() {

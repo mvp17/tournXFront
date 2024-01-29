@@ -5,7 +5,7 @@
       <form>
         <v-text-field
           v-model="state.name"
-          :error-messages="v$.name.$errors.map((e) => e.$message)"
+          :error-messages="(v$.name.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Name"
           required
@@ -15,7 +15,7 @@
 
         <v-text-field
           v-model="state.level"
-          :error-messages="v$.level.$errors.map((e) => e.$message)"
+          :error-messages="(v$.level.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Level"
           required
@@ -25,7 +25,7 @@
 
         <v-text-field
           v-model="state.game"
-          :error-messages="v$.game.$errors.map((e) => e.$message)"
+          :error-messages="(v$.game.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Game"
           required
@@ -35,7 +35,7 @@
 
         <v-text-field
           v-model="state.type"
-          :error-messages="v$.type.$errors.map((e) => e.$message)"
+          :error-messages="(v$.type.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Type"
           required
@@ -45,7 +45,7 @@
 
         <v-text-field
           v-model="state.description"
-          :error-messages="v$.description.$errors.map((e) => e.$message)"
+          :error-messages="(v$.description.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Description"
           required
@@ -55,7 +55,7 @@
 
         <v-text-field
           v-model="state.minParticipants"
-          :error-messages="v$.minParticipants.$errors.map((e) => e.$message)"
+          :error-messages="(v$.minParticipants.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Minimum of participants"
           required
@@ -65,7 +65,7 @@
 
         <v-text-field
           v-model="state.maxParticipants"
-          :error-messages="v$.maxParticipants.$errors.map((e) => e.$message)"
+          :error-messages="(v$.maxParticipants.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Maximum of participants"
           required
@@ -75,7 +75,7 @@
 
         <v-text-field
           v-model="state.minTeamPlayers"
-          :error-messages="v$.minTeamPlayers.$errors.map((e) => e.$message)"
+          :error-messages="(v$.minTeamPlayers.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Minimum of team players"
           required
@@ -85,7 +85,7 @@
 
         <v-text-field
           v-model="state.maxTeamPlayers"
-          :error-messages="v$.maxTeamPlayers.$errors.map((e) => e.$message)"
+          :error-messages="(v$.maxTeamPlayers.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Maximum of team players"
           required
@@ -192,6 +192,7 @@ import { required, numeric } from '@vuelidate/validators';
 import { onMounted } from 'vue';
 import { computed } from '@vue/reactivity';
 import { useTournamentsStore } from '../stores/tournaments';
+import { VuelidateError } from '../../../core/interfaces/VuelidateError';
 
 const tournamentsStore = useTournamentsStore();
 const tournaments = computed(() => tournamentsStore.tournaments);
@@ -253,4 +254,3 @@ function clear() {
   }
 }
 </script>
-../features/tournaments/stores/tournaments

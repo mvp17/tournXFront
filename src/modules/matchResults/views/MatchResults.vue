@@ -6,7 +6,7 @@
         <v-select
           v-model="state.selectMatch"
           :items="matches"
-          :error-messages="v$.selectMatch.$errors.map((e) => e.$message)"
+          :error-messages="(v$.selectMatch.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Match"
           required
           @change="v$.selectMatch.$touch"
@@ -16,7 +16,7 @@
         <v-select
           v-model="state.selectWinnerTeam"
           :items="teams"
-          :error-messages="v$.selectWinnerTeam.$errors.map((e) => e.$message)"
+          :error-messages="(v$.selectWinnerTeam.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Winner Team"
           required
           @change="v$.selectWinnerTeam.$touch"
@@ -25,7 +25,7 @@
 
         <v-text-field
           v-model="state.result"
-          :error-messages="v$.result.$errors.map((e) => e.$message)"
+          :error-messages="(v$.result.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Result"
           required
@@ -96,12 +96,14 @@ import { required } from '@vuelidate/validators';
 import { useMatchResultsStore } from '../stores/matchResults';
 import { onMounted } from 'vue';
 import { computed } from '@vue/reactivity';
+import { VuelidateError } from '../../../core/interfaces/VuelidateError';
 
 const matchResultsStore = useMatchResultsStore();
 const matchResults = computed(() => matchResultsStore.matchResults);
 
 const initialState = {
   message: '',
+  result: '',
   selectMatch: null,
   selectWinnerTeam: null,
 };
@@ -148,4 +150,3 @@ function clear() {
   }
 }
 </script>
-../features/matchResults/stores/matchResults
