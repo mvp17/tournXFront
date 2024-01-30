@@ -167,6 +167,7 @@ async function submit() {
     }
     //teamsStore.addTeam(request);
   }
+  else alert("Validation form failed!");
 }
 
 function getTeams() {

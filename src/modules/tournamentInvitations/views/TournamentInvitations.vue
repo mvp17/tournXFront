@@ -145,6 +145,7 @@ async function submit() {
     }
     //tournamentInvitationsStore.addTournamentInvitation(request);
   }
+  else alert("Validation form failed!");
 }
 
 function getTournamentInvitations() {

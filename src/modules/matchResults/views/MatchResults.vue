@@ -113,7 +113,7 @@ const state = reactive({
 });
 
 const matches = ['Match 1', 'Match 2', 'Match 3', 'Match 4'];
-const teams = ['Team 1', 'Team 2', 'Team 3', 'Team 4'];
+
 
 const rules = {
   result: { required },
@@ -136,6 +136,7 @@ async function submit() {
     }
     //matchResultsStore.addMatchResult(request);
   }
+  else alert("Validation form failed!");
 }
 
 function getMatchResults() {

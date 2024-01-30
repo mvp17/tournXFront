@@ -238,8 +238,9 @@ async function submit() {
     for (const key of Object.keys(initialState)) {
       request[key] = state[key];
     }
-    //teamsStore.addTeam(request);
+    //tournamentsStore.addTournament(request);
   }
+  else alert("Validation form failed!");
 }
 
 function getTournaments() {

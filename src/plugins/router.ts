@@ -1,10 +1,10 @@
 import { createWebHistory, createRouter } from 'vue-router';
 import Home from '../modules/home/Home.vue';
 import Tournaments from '../modules/tournaments/views/Tournaments.vue';
-//import Matches from "@/views/Matches.vue";
+import Matches from "../modules/matches/views/Matches.vue";
 import MatchResults from '../modules/matchResults/views/MatchResults.vue';
 import Players from '../modules/players/views/Players.vue';
-import Rounds from '../modules/rounds/Rounds.vue';
+import Rounds from '../modules/rounds/views/Rounds.vue';
 import TeamInvitations from '../modules/teamInvitations/views/TeamInvitations.vue';
 import Teams from '../modules/teams/views/Teams.vue';
 import TournamentInvitations from '../modules/tournamentInvitations/views/TournamentInvitations.vue';
@@ -58,14 +58,12 @@ export const routes = [
     icon: 'mdi-soccer-field',
     component: MatchResults,
   },
-  /*
   {
     path: "/matches",
     name: "Matches",
     icon: "mdi-soccer-field",
     component: Matches,
-  },
-  */
+  }
 ];
 
 const router = createRouter({

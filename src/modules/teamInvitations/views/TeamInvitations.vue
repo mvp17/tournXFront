@@ -138,6 +138,7 @@ async function submit() {
     }
     //teamInvitations.addTeamInvitation(request);
   }
+  else alert("Validation form failed!");
 }
 
 function getTeamInvitations() {

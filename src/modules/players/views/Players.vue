@@ -159,6 +159,7 @@ async function submit() {
     }
     //playersStore.addPlayer(request);
   }
+  else alert("Validation form failed!");
 }
 
 function getPlayers() {
