@@ -186,72 +186,72 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
-import { useVuelidate } from '@vuelidate/core';
-import { required, numeric } from '@vuelidate/validators';
-import { onMounted } from 'vue';
-import { computed } from '@vue/reactivity';
-import { useTournamentsStore } from '../stores/tournaments';
-import { VuelidateError } from '../../../core/interfaces/VuelidateError';
+  import { reactive } from 'vue';
+  import { useVuelidate } from '@vuelidate/core';
+  import { required, numeric } from '@vuelidate/validators';
+  import { onMounted } from 'vue';
+  import { computed } from '@vue/reactivity';
+  import { useTournamentsStore } from '../stores/tournamentStore';
+  import { VuelidateError } from '../../../core/interfaces/VuelidateError';
 
-const tournamentsStore = useTournamentsStore();
-const tournaments = computed(() => tournamentsStore.tournaments);
+  const tournamentsStore = useTournamentsStore();
+  const tournaments = computed(() => tournamentsStore.tournaments);
 
-const initialState = {
-  name: '',
-  level: '',
-  game: '',
-  type: '',
-  description: '',
-  minParticipants: '',
-  maxParticipants: '',
-  minTeamPlayers: '',
-  maxTeamPlayers: '',
-};
+  const initialState = {
+    name: '',
+    level: '',
+    game: '',
+    type: '',
+    description: '',
+    minParticipants: '',
+    maxParticipants: '',
+    minTeamPlayers: '',
+    maxTeamPlayers: '',
+  };
 
-const state = reactive({
-  ...initialState,
-});
+  const state = reactive({
+    ...initialState,
+  });
 
-const rules = {
-  name: { required },
-  level: { required },
-  game: { required },
-  type: { required },
-  description: { required },
-  minParticipants: { required, numeric },
-  maxParticipants: { required, numeric },
-  minTeamPlayers: { required, numeric },
-  maxTeamPlayers: { required, numeric },
-};
+  const rules = {
+    name: { required },
+    level: { required },
+    game: { required },
+    type: { required },
+    description: { required },
+    minParticipants: { required, numeric },
+    maxParticipants: { required, numeric },
+    minTeamPlayers: { required, numeric },
+    maxTeamPlayers: { required, numeric },
+  };
 
-const v$ = useVuelidate(rules, state);
+  const v$ = useVuelidate(rules, state);
 
-onMounted(() => {
-  //getTournaments();
-});
+  onMounted(() => {
+    //getTournaments();
+  });
 
-async function submit() {
-  const result = await v$.value.$validate();
-  const request = {};
-  if (result) {
-    for (const key of Object.keys(initialState)) {
-      request[key] = state[key];
+  async function submit() {
+    const result = await v$.value.$validate();
+    const request = {};
+    if (result) {
+      for (const key of Object.keys(initialState)) {
+        request[key] = state[key];
+      }
+      //tournamentsStore.addTournament(request);
     }
-    //tournamentsStore.addTournament(request);
+    else alert("Validation form failed!");
   }
-  else alert("Validation form failed!");
-}
 
-function getTournaments() {
-  tournamentsStore.getAll();
-}
-
-function clear() {
-  v$.value.$reset();
-
-  for (const [key, value] of Object.entries(initialState)) {
-    state[key] = value;
+  function getTournaments() {
+    tournamentsStore.getAll();
   }
-}
+
+  function clear() {
+    v$.value.$reset();
+
+    for (const [key, value] of Object.entries(initialState)) {
+      state[key] = value;
+    }
+  }
 </script>

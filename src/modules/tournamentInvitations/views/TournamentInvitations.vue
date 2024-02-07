@@ -93,70 +93,70 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
-import { useVuelidate } from '@vuelidate/core';
-import { required } from '@vuelidate/validators';
-import { onMounted } from 'vue';
-import { computed } from '@vue/reactivity';
-import { useTournamentInvitationsStore } from '../stores/tournamentInvitations';
-import { VuelidateError } from '../../../core/interfaces/VuelidateError';
+  import { reactive } from 'vue';
+  import { useVuelidate } from '@vuelidate/core';
+  import { required } from '@vuelidate/validators';
+  import { onMounted } from 'vue';
+  import { computed } from '@vue/reactivity';
+  import { useTournamentInvitationsStore } from '../stores/tournamentInvitationStore';
+  import { VuelidateError } from '../../../core/interfaces/VuelidateError';
 
-const tournamentInvitationsStore = useTournamentInvitationsStore();
-const tournamentInvitations = computed(
-  () => tournamentInvitationsStore.tournamentInvitations
-);
+  const tournamentInvitationsStore = useTournamentInvitationsStore();
+  const tournamentInvitations = computed(
+    () => tournamentInvitationsStore.tournamentInvitations
+  );
 
-const initialState = {
-  message: '',
-  selectTournament: null,
-  selectTeam: null,
-};
+  const initialState = {
+    message: '',
+    selectTournament: null,
+    selectTeam: null,
+  };
 
-const state = reactive({
-  ...initialState,
-});
+  const state = reactive({
+    ...initialState,
+  });
 
-const tournaments = [
-  'Tournament 1',
-  'Tournament 2',
-  'Tournament 3',
-  'Tournament 4',
-];
-const teams = ['Team 1', 'Team 2', 'Team 3', 'Team 4'];
+  const tournaments = [
+    'Tournament 1',
+    'Tournament 2',
+    'Tournament 3',
+    'Tournament 4',
+  ];
+  const teams = ['Team 1', 'Team 2', 'Team 3', 'Team 4'];
 
-const rules = {
-  message: { required },
-  selectTournament: { required },
-  selectTeam: { required },
-};
+  const rules = {
+    message: { required },
+    selectTournament: { required },
+    selectTeam: { required },
+  };
 
-const v$ = useVuelidate(rules, state);
+  const v$ = useVuelidate(rules, state);
 
-onMounted(() => {
-  //getTournamentInvitations();
-});
+  onMounted(() => {
+    //getTournamentInvitations();
+  });
 
-async function submit() {
-  const result = await v$.value.$validate();
-  const request = {};
-  if (result) {
-    for (const key of Object.keys(initialState)) {
-      request[key] = state[key];
+  async function submit() {
+    const result = await v$.value.$validate();
+    const request = {};
+    if (result) {
+      for (const key of Object.keys(initialState)) {
+        request[key] = state[key];
+      }
+      //tournamentInvitationsStore.addTournamentInvitation(request);
     }
-    //tournamentInvitationsStore.addTournamentInvitation(request);
+    else alert("Validation form failed!");
   }
-  else alert("Validation form failed!");
-}
 
-function getTournamentInvitations() {
-  tournamentInvitationsStore.getAll();
-}
-
-function clear() {
-  v$.value.$reset();
-
-  for (const [key, value] of Object.entries(initialState)) {
-    state[key] = value;
+  function getTournamentInvitations() {
+    tournamentInvitationsStore.getAll();
   }
-}
+
+  function clear() {
+    v$.value.$reset();
+
+    for (const [key, value] of Object.entries(initialState)) {
+      state[key] = value;
+    }
+  }
 </script>

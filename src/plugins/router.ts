@@ -1,74 +1,84 @@
 import { createWebHistory, createRouter } from 'vue-router';
-import Home from '../modules/home/Home.vue';
-import Tournaments from '../modules/tournaments/views/Tournaments.vue';
-import Matches from "../modules/matches/views/Matches.vue";
-import MatchResults from '../modules/matchResults/views/MatchResults.vue';
-import Players from '../modules/players/views/Players.vue';
-import Rounds from '../modules/rounds/views/Rounds.vue';
-import TeamInvitations from '../modules/teamInvitations/views/TeamInvitations.vue';
-import Teams from '../modules/teams/views/Teams.vue';
-import TournamentInvitations from '../modules/tournamentInvitations/views/TournamentInvitations.vue';
+
+function authGuard () {
+  // User store
+  const isAuthenticated = false;
+  if (!isAuthenticated) return { name: 'Login'}
+}
+
+function playerGuard (to: { path: string }) {
+  // User store
+  const role = "PLAYER";
+  if (role === "PLAYER") return { path: to.path }
+  else return { name: 'Login' }
+}
+
+function tournamentMasterGuard (to: { path: string }) {
+  // User store
+  const role = "TOURNAMENT MASTER";
+  if (role === "TOURNAMENT MASTER") return { path: to.path }
+  else return { name: 'Login' }
+}
 
 export const routes = [
   {
     path: '/',
     name: 'Home',
     icon: 'mdi-home',
-    component: Home,
+    component: () => import("../modules/home/Home.vue"),
+    beforeEnter: authGuard
   },
   {
     path: '/tournaments',
     name: 'Tournaments',
     icon: 'mdi-tournament',
-    component: Tournaments,
+    component: () => import("../modules/tournaments/views/Tournaments.vue"),
+    beforeEnter: [authGuard, tournamentMasterGuard]
   },
   {
     path: '/tournament-invitations',
     name: 'Tournament invitations',
     icon: 'mdi-tournament',
-    component: TournamentInvitations,
+    component: () => import("../modules/tournamentInvitations/views/TournamentInvitations.vue"),
+    beforeEnter: [authGuard, tournamentMasterGuard]
   },
   {
     path: '/team-invitations',
     name: 'Team invitations',
     icon: 'mdi-account-group',
-    component: TeamInvitations,
+    component: () => import("../modules/teamInvitations/views/TeamInvitations.vue"),
+    beforeEnter: [authGuard, playerGuard]
   },
   {
     path: '/teams',
     name: 'Teams',
     icon: 'mdi-account-group',
-    component: Teams,
+    component: () => import("../modules/teams/views/Teams.vue"),
+    beforeEnter: [authGuard, playerGuard]
   },
   {
     path: '/rounds',
     name: 'Rounds',
     icon: 'mdi-recycle-variant',
-    component: Rounds,
-  },
-  {
-    path: '/players',
-    name: 'Players',
-    icon: 'mdi-football-helmet',
-    component: Players,
+    component: () => import("../modules/rounds/views/Rounds.vue"),
+    beforeEnter: [authGuard, tournamentMasterGuard]
   },
   {
     path: '/match-results',
     name: 'Match Results',
     icon: 'mdi-soccer-field',
-    component: MatchResults,
+    component: () => import("../modules/matchResults/views/MatchResults.vue"),
   },
   {
     path: "/matches",
     name: "Matches",
     icon: "mdi-soccer-field",
-    component: Matches,
+    component: () => import("../modules/matches/views/Matches.vue"),
+    beforeEnter: [authGuard, tournamentMasterGuard]
   }
 ];
 
-const router = createRouter({
+export const router = createRouter({
   history: createWebHistory(),
   routes,
 });
-
-export default router;

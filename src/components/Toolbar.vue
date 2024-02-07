@@ -26,12 +26,26 @@
 </template>
 
 <script lang="ts">
-import { routes } from '../plugins/router';
-export default {
-  name: 'Header-component',
-  data: () => ({
-    items: routes,
-    drawer: false,
-  }),
-};
+  import { routes, router } from '../plugins/router';
+  router.addRoute(
+    {
+      path: '/login',
+      name: 'Login',
+      component: () => import("../modules/users/views/signIn.vue")
+    }
+  );
+  router.addRoute(
+    {
+      path: '/register',
+      name: 'Register',
+      component: () => import("../modules/users/views/signUp.vue")
+    }
+  );
+  export default {
+    name: 'Header-component',
+    data: () => ({
+      items: routes,
+      drawer: false,
+    }),
+  };
 </script>

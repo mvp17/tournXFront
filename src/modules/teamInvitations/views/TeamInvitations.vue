@@ -93,63 +93,63 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
-import { useVuelidate } from '@vuelidate/core';
-import { required } from '@vuelidate/validators';
-import { onMounted } from 'vue';
-import { useTeamInvitationsStore } from '../stores/teamInvitations';
-import { computed } from '@vue/reactivity';
-import { VuelidateError } from '../../../core/interfaces/VuelidateError';
+  import { reactive } from 'vue';
+  import { useVuelidate } from '@vuelidate/core';
+  import { required } from '@vuelidate/validators';
+  import { onMounted } from 'vue';
+  import { useTeamInvitationsStore } from '../stores/teamInvitationStore';
+  import { computed } from '@vue/reactivity';
+  import { VuelidateError } from '../../../core/interfaces/VuelidateError';
 
-const teamInvitationsStore = useTeamInvitationsStore();
-const teamInvitations = computed(() => teamInvitationsStore.teamInvitations);
+  const teamInvitationsStore = useTeamInvitationsStore();
+  const teamInvitations = computed(() => teamInvitationsStore.teamInvitations);
 
-const initialState = {
-  message: '',
-  selectPlayer: null,
-  selectTeam: null,
-};
+  const initialState = {
+    message: '',
+    selectPlayer: null,
+    selectTeam: null,
+  };
 
-const state = reactive({
-  ...initialState,
-});
+  const state = reactive({
+    ...initialState,
+  });
 
-const players = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
-const teams = ['Team 1', 'Team 2', 'Team 3', 'Team 4'];
+  const players = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
+  const teams = ['Team 1', 'Team 2', 'Team 3', 'Team 4'];
 
-const rules = {
-  message: { required },
-  selectPlayer: { required },
-  selectTeam: { required },
-};
+  const rules = {
+    message: { required },
+    selectPlayer: { required },
+    selectTeam: { required },
+  };
 
-const v$ = useVuelidate(rules, state);
+  const v$ = useVuelidate(rules, state);
 
-onMounted(() => {
-  getTeamInvitations();
-});
+  onMounted(() => {
+    getTeamInvitations();
+  });
 
-async function submit() {
-  const result = await v$.value.$validate();
-  const request = {};
-  if (result) {
-    for (const key of Object.keys(initialState)) {
-      request[key] = state[key];
+  async function submit() {
+    const result = await v$.value.$validate();
+    const request = {};
+    if (result) {
+      for (const key of Object.keys(initialState)) {
+        request[key] = state[key];
+      }
+      //teamInvitations.addTeamInvitation(request);
     }
-    //teamInvitations.addTeamInvitation(request);
+    else alert("Validation form failed!");
   }
-  else alert("Validation form failed!");
-}
 
-function getTeamInvitations() {
-  //teamInvitationsStore.getAll();
-}
-
-function clear() {
-  v$.value.$reset();
-
-  for (const [key, value] of Object.entries(initialState)) {
-    state[key] = value;
+  function getTeamInvitations() {
+    //teamInvitationsStore.getAll();
   }
-}
+
+  function clear() {
+    v$.value.$reset();
+
+    for (const [key, value] of Object.entries(initialState)) {
+      state[key] = value;
+    }
+  }
 </script>

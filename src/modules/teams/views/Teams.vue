@@ -128,7 +128,7 @@ import { useVuelidate } from '@vuelidate/core';
 import { required, numeric } from '@vuelidate/validators';
 import { onMounted } from 'vue';
 import { computed } from '@vue/reactivity';
-import { useTeamsStore } from '../stores/teams';
+import { useTeamsStore } from '../stores/teamStore';
 import { VuelidateError } from '../../../core/interfaces/VuelidateError';
 
 const teamsStore = useTeamsStore();

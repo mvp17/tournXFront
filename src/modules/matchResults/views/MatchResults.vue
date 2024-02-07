@@ -90,64 +90,64 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
-import { useVuelidate } from '@vuelidate/core';
-import { required } from '@vuelidate/validators';
-import { useMatchResultsStore } from '../stores/matchResults';
-import { onMounted } from 'vue';
-import { computed } from '@vue/reactivity';
-import { VuelidateError } from '../../../core/interfaces/VuelidateError';
+  import { reactive } from 'vue';
+  import { useVuelidate } from '@vuelidate/core';
+  import { required } from '@vuelidate/validators';
+  import { useMatchResultsStore } from '../stores/matchResultStore';
+  import { onMounted } from 'vue';
+  import { computed } from '@vue/reactivity';
+  import { VuelidateError } from '../../../core/interfaces/VuelidateError';
 
-const matchResultsStore = useMatchResultsStore();
-const matchResults = computed(() => matchResultsStore.matchResults);
+  const matchResultsStore = useMatchResultsStore();
+  const matchResults = computed(() => matchResultsStore.matchResults);
 
-const initialState = {
-  message: '',
-  result: '',
-  selectMatch: null,
-  selectWinnerTeam: null,
-};
+  const initialState = {
+    message: '',
+    result: '',
+    selectMatch: null,
+    selectWinnerTeam: null,
+  };
 
-const state = reactive({
-  ...initialState,
-});
+  const state = reactive({
+    ...initialState,
+  });
 
-const matches = ['Match 1', 'Match 2', 'Match 3', 'Match 4'];
+  const matches = ['Match 1', 'Match 2', 'Match 3', 'Match 4'];
 
 
-const rules = {
-  result: { required },
-  selectMatch: { required },
-  selectWinnerTeam: { required },
-};
+  const rules = {
+    result: { required },
+    selectMatch: { required },
+    selectWinnerTeam: { required },
+  };
 
-const v$ = useVuelidate(rules, state);
+  const v$ = useVuelidate(rules, state);
 
-onMounted(() => {
-  //getMatchResults();
-});
+  onMounted(() => {
+    //getMatchResults();
+  });
 
-async function submit() {
-  const result = await v$.value.$validate();
-  const request = {};
-  if (result) {
-    for (const key of Object.keys(initialState)) {
-      request[key] = state[key];
+  async function submit() {
+    const result = await v$.value.$validate();
+    const request = {};
+    if (result) {
+      for (const key of Object.keys(initialState)) {
+        request[key] = state[key];
+      }
+      //matchResultsStore.addMatchResult(request);
     }
-    //matchResultsStore.addMatchResult(request);
+    else alert("Validation form failed!");
   }
-  else alert("Validation form failed!");
-}
 
-function getMatchResults() {
-  matchResultsStore.getAll();
-}
-
-function clear() {
-  v$.value.$reset();
-
-  for (const [key, value] of Object.entries(initialState)) {
-    state[key] = value;
+  function getMatchResults() {
+    matchResultsStore.getAll();
   }
-}
+
+  function clear() {
+    v$.value.$reset();
+
+    for (const [key, value] of Object.entries(initialState)) {
+      state[key] = value;
+    }
+  }
 </script>

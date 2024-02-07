@@ -92,9 +92,9 @@
         ></v-data-table>
       </v-col>
     </v-row>
-  </template>
+</template>
   
-  <script lang="ts">
+<script lang="ts">
   export default {
     data() {
       return {
@@ -158,15 +158,15 @@
       };
     },
   };
-  </script>
+</script>
   
-  <script setup lang="ts">
+<script setup lang="ts">
   import { reactive } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
   import { required, numeric } from '@vuelidate/validators';
   import { onMounted } from 'vue';
   import { computed } from '@vue/reactivity';
-  import { useRoundsStore } from '../stores/rounds';
+  import { useRoundsStore } from '../stores/roundStore';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
   
   const roundsStore = useRoundsStore();
@@ -230,5 +230,4 @@
       state[key] = value;
     }
   }
-  </script>
-  
+</script>
