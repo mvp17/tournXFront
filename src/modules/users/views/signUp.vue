@@ -1,6 +1,7 @@
 <template>
     <h1>Sign Up</h1>
-    <v-row>
+    <div class="center-container">
+        <v-card>
         <form>
             <v-text-field
                 v-model="state.username"
@@ -36,7 +37,8 @@
             <v-btn color="success" class="me-4" @click="submit"> submit </v-btn>
             <v-btn color="error" @click="clear"> clear </v-btn>
         </form>
-    </v-row>
+    </v-card>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -45,7 +47,7 @@
     import { required, email } from '@vuelidate/validators';
     import { useUserStore } from '../stores/userStore';
     import { VuelidateError } from '../../../core/interfaces/VuelidateError';
-    import { router } from '../../../plugins/router';
+    import { router } from '../../../plugins/router/router';
     import { NewUserDto } from '../models/newUserDto';
 
     const userStore = useUserStore();
@@ -74,7 +76,7 @@
             request.email = state.email;
             request.password = state.password;
             userStore.registerPlayer(request);
-            router.push('/');
+            router.push('/home');
         }
         else alert("Validation form failed!");
     }
@@ -86,3 +88,13 @@
         state.email = "";
     }
 </script>
+
+<style>
+.center-container {
+  display: flex;
+  justify-content: center; /* Horizontally center */
+  align-items: center; /* Vertically center */
+  height: 100vh; /* Adjust as needed */
+}
+</style>
+../../../plugins/router/router

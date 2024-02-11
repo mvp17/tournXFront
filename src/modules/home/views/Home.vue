@@ -19,7 +19,7 @@
   import { reactive } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
   import { required } from '@vuelidate/validators';
-  import { VuelidateError } from '../../core/interfaces/VuelidateError';
+  import { VuelidateError } from '../../../core/interfaces/VuelidateError';
 
   const initialState = {
     checkbox: null,

@@ -1,6 +1,7 @@
 <template>
   <h1>Sign In</h1>
-    <v-row>
+  <div class="center-container">
+    <v-card>
       <form>
         <v-text-field
           v-model="state.username"
@@ -26,7 +27,8 @@
         <v-btn color="success" class="me-4" @click="submit"> submit </v-btn>
         <v-btn color="error" @click="clear"> clear </v-btn>
       </form>
-    </v-row>
+    </v-card>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -35,8 +37,9 @@
   import { required } from '@vuelidate/validators';
   import { useUserStore } from '../stores/userStore';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
-  import { router } from '../../../plugins/router';
+  import { router } from '../../../plugins/router/router';
   import { LoginDto } from '../models/loginDto';
+  import { playerRoutes, tournamentMasterRoutes } from '../../../plugins/router/routes';
 
   const userStore = useUserStore();
 
@@ -61,7 +64,18 @@
       request.username = state.username;
       request.password = state.password
       await userStore.loginPlayer(request);
-      router.push('/');
+      router.push('/home');
+
+      if (userStore.user.role === "PLAYER") {
+        playerRoutes.forEach((playerRoute) => {
+          router.addRoute(playerRoute);
+        });
+      }
+      else if (userStore.user.role === "TOURNAMENT MASTER") {
+        tournamentMasterRoutes.forEach((tournamentMasterRoute) => {
+          router.addRoute(tournamentMasterRoute);      
+        });
+      }
     }
     else alert("Validation form failed!");
   }
@@ -72,3 +86,13 @@
     state.password = "";
   }
 </script>
+
+<style>
+.center-container {
+  display: flex;
+  justify-content: center; /* Horizontally center */
+  align-items: center; /* Vertically center */
+  height: 100vh; /* Adjust as needed */
+}
+</style>
+../../../plugins/router/router
