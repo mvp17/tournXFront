@@ -3,16 +3,17 @@
     <v-row>
       <form>
         <v-text-field
-          v-model="state.email"
-          :error-messages="(v$.email.$errors as VuelidateError[]).map((e) => e.$message)"
+          v-model="state.username"
+          :error-messages="(v$.username.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
-          label="Email"
+          label="Username"
           required
-          @input="v$.email.$touch"
-          @blur="v$.email.$touch"
+          @input="v$.username.$touch"
+          @blur="v$.username.$touch"
         ></v-text-field>
   
         <v-text-field
+          type="password"
           v-model="state.password"
           :error-messages="(v$.password.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
@@ -32,23 +33,22 @@
   import { reactive } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
   import { required } from '@vuelidate/validators';
-  import { computed } from '@vue/reactivity';
   import { useUserStore } from '../stores/userStore';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
   import { router } from '../../../plugins/router';
+  import { LoginDto } from '../models/loginDto';
 
   const userStore = useUserStore();
-  const user = computed(() => userStore.user);
 
   const initialState = {
-    email: '',
+    username: '',
     password: '',
   };
-
+  
   const state = reactive({...initialState,});
 
   const rules = {
-    email: { required },
+    username: { required },
     password: { required },
   };
 
@@ -56,20 +56,19 @@
 
   async function submit() {
     const result = await v$.value.$validate();
-    const request = {};
+    const request: LoginDto = { username: "", password: "" };
     if (result) {
-      for (const key of Object.keys(initialState)) {
-        request[key] = state[key];
-      }
-      //userStore.login(request);
+      request.username = state.username;
+      request.password = state.password
+      await userStore.loginPlayer(request);
+      router.push('/');
     }
     else alert("Validation form failed!");
   }
 
   function clear() {
     v$.value.$reset();
-    for (const [key, value] of Object.entries(initialState)) {
-        state[key] = value;
-    }
+    state.username = "";
+    state.password = "";
   }
 </script>

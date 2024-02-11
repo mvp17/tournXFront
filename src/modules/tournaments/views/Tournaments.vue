@@ -228,7 +228,7 @@ export default {
   const v$ = useVuelidate(rules, state);
 
   onMounted(() => {
-    //getTournaments();
+    getTournaments();
   });
 
   async function submit() {
@@ -238,7 +238,7 @@ export default {
       for (const key of Object.keys(initialState)) {
         request[key] = state[key];
       }
-      //tournamentsStore.addTournament(request);
+      tournamentsStore.addTournament(request);
     }
     else alert("Validation form failed!");
   }

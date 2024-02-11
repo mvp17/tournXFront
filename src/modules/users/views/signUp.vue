@@ -22,7 +22,8 @@
                 @blur="v$.email.$touch"
             ></v-text-field>
   
-            <v-text-field
+            <v-text-field 
+                type="password"
                 v-model="state.password"
                 :error-messages="(v$.password.$errors as VuelidateError[]).map((e) => e.$message)"
                 :counter="10"
@@ -41,14 +42,13 @@
 <script setup lang="ts">
     import { reactive } from 'vue';
     import { useVuelidate } from '@vuelidate/core';
-    import { required } from '@vuelidate/validators';
-    import { computed } from '@vue/reactivity';
+    import { required, email } from '@vuelidate/validators';
     import { useUserStore } from '../stores/userStore';
     import { VuelidateError } from '../../../core/interfaces/VuelidateError';
     import { router } from '../../../plugins/router';
+    import { NewUserDto } from '../models/newUserDto';
 
     const userStore = useUserStore();
-    const user = computed(() => userStore.user);
 
     const initialState = {
         username: '',
@@ -60,7 +60,7 @@
 
     const rules = {
         username: { required },
-        email: { required },
+        email: { required, email },
         password: { required },
     };
 
@@ -68,20 +68,21 @@
 
     async function submit() {
         const result = await v$.value.$validate();
-        const request = {};
+        const request: NewUserDto = { username: "", email: "", password: "" };
         if (result) {
-            for (const key of Object.keys(initialState)) {
-                request[key] = state[key];
-            }
-            //userStore.register(request);
-            }
+            request.username = state.username;
+            request.email = state.email;
+            request.password = state.password;
+            userStore.registerPlayer(request);
+            router.push('/');
+        }
         else alert("Validation form failed!");
     }
 
     function clear() {
         v$.value.$reset();
-        for (const [key, value] of Object.entries(initialState)) {
-            state[key] = value;
-        }
+        state.email = "";
+        state.username = "";
+        state.email = "";
     }
 </script>

@@ -1,38 +1,9 @@
 <template>
   <h1>Home</h1>
   <form>
-    <v-text-field
-      v-model="state.name"
-      :error-messages="v$.name.$errors.map((e) => e.$message)"
-      :counter="10"
-      label="Name"
-      required
-      @input="v$.name.$touch"
-      @blur="v$.name.$touch"
-    ></v-text-field>
-
-    <v-text-field
-      v-model="state.email"
-      :error-messages="v$.email.$errors.map((e) => e.$message)"
-      label="E-mail"
-      required
-      @input="v$.email.$touch"
-      @blur="v$.email.$touch"
-    ></v-text-field>
-
-    <v-select
-      v-model="state.select"
-      :items="items"
-      :error-messages="v$.select.$errors.map((e) => e.$message)"
-      label="Item"
-      required
-      @change="v$.select.$touch"
-      @blur="v$.select.$touch"
-    ></v-select>
-
     <v-checkbox
       v-model="state.checkbox"
-      :error-messages="v$.checkbox.$errors.map((e) => e.$message)"
+      :error-messages="(v$.checkbox.$errors as VuelidateError[]).map((e) => e.$message)"
       label="Do you agree?"
       required
       @change="v$.checkbox.$touch"
@@ -45,38 +16,26 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
-import { useVuelidate } from '@vuelidate/core';
-import { email, required } from '@vuelidate/validators';
+  import { reactive } from 'vue';
+  import { useVuelidate } from '@vuelidate/core';
+  import { required } from '@vuelidate/validators';
+  import { VuelidateError } from '../../core/interfaces/VuelidateError';
 
-const initialState = {
-  name: '',
-  email: '',
-  select: null,
-  checkbox: null,
-};
+  const initialState = {
+    checkbox: null,
+  };
 
-const state = reactive({
-  ...initialState,
-});
+  const state = reactive({
+    ...initialState,
+  });
 
-const items = ['Item 1', 'Item 2', 'Item 3', 'Item 4'];
+  const rules = {
+    checkbox: { required },
+  };
 
-const rules = {
-  name: { required },
-  email: { required, email },
-  select: { required },
-  items: { required },
-  checkbox: { required },
-};
+  const v$ = useVuelidate(rules, state);
 
-const v$ = useVuelidate(rules, state);
-
-function clear() {
-  v$.value.$reset();
-
-  for (const [key, value] of Object.entries(initialState)) {
-    state[key] = value;
+  function clear() {
+    v$.value.$reset();
   }
-}
 </script>

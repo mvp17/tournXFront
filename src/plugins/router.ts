@@ -1,23 +1,22 @@
 import { createWebHistory, createRouter } from 'vue-router';
+import { useUserStore } from '../modules/users/stores/userStore';
 
 function authGuard () {
-  // User store
-  const isAuthenticated = false;
-  if (!isAuthenticated) return { name: 'Login'}
+  const userStore = useUserStore();
+  const isAuth = userStore.getUser.token !== "";
+  if (!isAuth) return { name: 'Login'}
 }
 
-function playerGuard (to: { path: string }) {
-  // User store
-  const role = "PLAYER";
-  if (role === "PLAYER") return { path: to.path }
-  else return { name: 'Login' }
+function playerGuard () {
+  const userStore = useUserStore();
+  const role = userStore.getUser.role;
+  if (role !== "PLAYER") return { name: 'Login' }
 }
 
-function tournamentMasterGuard (to: { path: string }) {
-  // User store
-  const role = "TOURNAMENT MASTER";
-  if (role === "TOURNAMENT MASTER") return { path: to.path }
-  else return { name: 'Login' }
+function tournamentMasterGuard () {
+  const userStore = useUserStore();
+  const role = userStore.getUser.role;
+  if (role !== "TOURNAMENT MASTER") return { name: 'Login' }
 }
 
 export const routes = [
