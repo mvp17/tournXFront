@@ -28,7 +28,7 @@
 <script lang="ts">
   import { computed } from 'vue';
   import { useUserStore } from '../modules/users/stores/userStore';
-  import { playerRoutes, tournamentMasterRoutes } from '../plugins/router/routes';
+  import { playerRoutes, tournamentMasterRoutes, commonRoutes } from '../plugins/router/routes';
 
   const userStore = useUserStore;
 
@@ -37,10 +37,10 @@
     data: () => ({
       items: computed(() => {
         if (userStore.getUser.role === "PLAYER" && useUserStore.getUser.token !== "") {
-          return playerRoutes;
+          return [...playerRoutes, ...commonRoutes];
         }
         else if (userStore.getUser.role === "TOURNAMENT MASTER" && useUserStore.getUser.token !== "") {
-          return tournamentMasterRoutes
+          return [...tournamentMasterRoutes, ...commonRoutes]
         }
       }),
       drawer: false,

@@ -1,5 +1,3 @@
-import { authGuard, playerGuard, tournamentMasterGuard } from "./guards";
-
 export const playerRoutes = [
     {
         path: '/team-invitations',
@@ -42,7 +40,7 @@ export const tournamentMasterRoutes = [
     },
 ];
 
-export const routes = [
+export const commonRoutes = [
     {
       path: '/home',
       name: 'Home',
@@ -55,4 +53,22 @@ export const routes = [
       icon: 'mdi-soccer-field',
       component: () => import("../../modules/matchResults/views/MatchResults.vue"),
     },
+];
+
+export const initialRoutes = [
+  {
+    path: '/',
+    name: 'Select user',
+    component: () => import("../../modules/home/views/SelectUserHome.vue"),
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import("../../modules/users/views/signIn.vue")
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import("../../modules/users/views/signUp.vue")
+  }
 ];
