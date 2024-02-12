@@ -23,16 +23,12 @@
 <script lang="ts">
     import { useUserStore } from '../../users/stores/userStore';
     import { router } from '../../../plugins/router/router';
-    import { routes } from '../../../plugins/router/routes';
 
-    const userStore = useUserStore();
+    const userStore = useUserStore;
     export default {
         methods: {
             selectPlayer() {
                 userStore.getUser.role = "PLAYER";
-                routes.forEach((route) => {
-                  router.addRoute(route);
-                })
                 router.push("/home");
             },
             selectTournamentMaster() {

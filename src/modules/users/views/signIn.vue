@@ -39,9 +39,8 @@
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
   import { router } from '../../../plugins/router/router';
   import { LoginDto } from '../models/loginDto';
-  import { playerRoutes, tournamentMasterRoutes } from '../../../plugins/router/routes';
 
-  const userStore = useUserStore();
+  const userStore = useUserStore;
 
   const initialState = {
     username: '',
@@ -65,17 +64,6 @@
       request.password = state.password
       await userStore.loginPlayer(request);
       router.push('/home');
-
-      if (userStore.user.role === "PLAYER") {
-        playerRoutes.forEach((playerRoute) => {
-          router.addRoute(playerRoute);
-        });
-      }
-      else if (userStore.user.role === "TOURNAMENT MASTER") {
-        tournamentMasterRoutes.forEach((tournamentMasterRoute) => {
-          router.addRoute(tournamentMasterRoute);      
-        });
-      }
     }
     else alert("Validation form failed!");
   }

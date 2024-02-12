@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { User } from '../models/user';
 import { NewUserDto } from '../models/newUserDto';
 import { LoginDto } from '../models/loginDto';
+import { piniaInstance } from '../../../pinia';
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -43,4 +44,4 @@ export const useUserStore = defineStore('user', {
       //this.user.role = "TOURNAMENT MASTER";
     }
   },
-});
+})(piniaInstance);

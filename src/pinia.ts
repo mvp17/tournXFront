@@ -1,4 +1,4 @@
 // Utilities
 import { createPinia } from 'pinia';
 
-export default createPinia();
+export const piniaInstance = createPinia();

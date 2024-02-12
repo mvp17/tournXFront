@@ -27,12 +27,22 @@
 
 <script lang="ts">
   import { computed } from 'vue';
-import { router } from '../plugins/router/router';
+  import { useUserStore } from '../modules/users/stores/userStore';
+  import { playerRoutes, tournamentMasterRoutes } from '../plugins/router/routes';
+
+  const userStore = useUserStore;
 
   export default {
     name: 'Header-component',
     data: () => ({
-      items: computed(() => router.getRoutes()),
+      items: computed(() => {
+        if (userStore.getUser.role === "PLAYER" && useUserStore.getUser.token !== "") {
+          return playerRoutes;
+        }
+        else if (userStore.getUser.role === "TOURNAMENT MASTER" && useUserStore.getUser.token !== "") {
+          return tournamentMasterRoutes
+        }
+      }),
       drawer: false,
     }),
   };
