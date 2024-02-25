@@ -1,5 +1,4 @@
-export interface TeamInvitation {
-    id: number, 
+export interface TeamInvitationRequestDto {
     playerId: number, 
     teamId: number, 
     message: string,

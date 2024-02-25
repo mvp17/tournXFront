@@ -24,7 +24,7 @@
           ></v-text-field>
 
         <v-select
-            v-model="state.winner"
+            v-model="state.winnerTeamId"
             :items="teams"
             :error-messages="(v$.winner.$errors as VuelidateError[]).map((e) => e.$message)"
             label="Winner Team"
@@ -48,7 +48,7 @@
         ></v-select>
 
         <v-select
-            v-model="state.nextRound"
+            v-model="state.nextRoundId"
             :items="nextRounds"
             :error-messages="(v$.nextRound.$errors as VuelidateError[]).map((e) => e.$message)"
             label="Next Round"
@@ -59,7 +59,7 @@
         ></v-select>
 
         <v-select
-            v-model="state.tournament"
+            v-model="state.tournamentId"
             :items="tournaments"
             :error-messages="(v$.tournament.$errors as VuelidateError[]).map((e) => e.$message)"
             label="Tournament"
@@ -84,8 +84,7 @@
       </v-col>
       <v-col>
         <v-data-table
-          :headers="headers"
-          :items="roundsList"
+          :items="rounds"
           class="elevation-1"
           item-key="name"
           items-per-page="5"
@@ -93,72 +92,7 @@
       </v-col>
     </v-row>
 </template>
-  
-<script lang="ts">
-  export default {
-    data() {
-      return {
-        roundsList: [
-          {
-            bestOf: 1,
-            numTeams: 2,
-            winner: -1,
-            rivals: [],
-            nextRound: 3,
-            tournament: 4,
-            hasWinner: false
-          },
-          {
-            bestOf: 2,
-            numTeams: 4,
-            winner: 1,
-            rivals: [],
-            nextRound: 2,
-            tournament: 5,
-            hasWinner: true
-          },
-        ],
-        headers: [
-          {
-            title: 'Best of',
-            align: 'end',
-            key: 'bestOf',
-          },
-          {
-            title: 'Number of teams',
-            align: 'end',
-            key: 'numTeams',
-          },
-          {
-            title: 'Winner Team',
-            align: 'end',
-            key: 'winner',
-          },
-          {
-            title: 'Rivals',
-            align: 'end',
-            key: 'rivals',
-          },
-          {
-            title: 'Next round',
-            align: 'end',
-            key: 'nextRound',
-          },
-          {
-            title: 'Tournament',
-            align: 'end',
-            key: 'tournament',
-          },
-          {
-            title: 'Has a winner?',
-            align: 'end',
-            key: 'hasWinner',
-          }
-        ],
-      };
-    },
-  };
-</script>
+
   
 <script setup lang="ts">
   import { reactive } from 'vue';
@@ -168,6 +102,7 @@
   import { computed } from '@vue/reactivity';
   import { useRoundsStore } from '../stores/roundStore';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
+  import { RoundRequestDto } from '../models/roundRequestDto';
   
   const roundsStore = useRoundsStore();
   const rounds = computed(() => roundsStore.rounds);
@@ -180,10 +115,10 @@
   const initialState = {
     bestOf: 0,
     numTeams: 0,
-    winner: 0,
+    winnerTeamId: 0,
     rivals: [],
-    nextRound: 0,
-    tournament: 0,
+    nextRoundId: 0,
+    tournamentId: 0,
     hasWinner: false
   };
   
@@ -194,40 +129,55 @@
   const rules = {
     bestOf: { required, numeric },
     numTeams: { required, numeric },
-    winner: { required, numeric },
+    winnerTeamId: { required, numeric },
     rivals: { required },
-    nextRound: { required, numeric },
-    tournament: { required, numeric },
+    nextRoundId: { required, numeric },
+    tournamentId: { required, numeric },
     hasWinner: { required },
   };
   
   const v$ = useVuelidate(rules, state);
   
   onMounted(() => {
-    //getRounds();
+    getRounds();
   });
   
   async function submit() {
     const result = await v$.value.$validate();
-    const request = {};
+    const request: RoundRequestDto = {
+      bestOf: 0,
+      numTeams: 0,
+      winnerTeamId: 0,
+      rivals: [],
+      nextRoundId: 0,
+      tournamentId: 0,
+      hasWinner: false
+    };
     if (result) {
-      for (const key of Object.keys(initialState)) {
-        request[key] = state[key];
-      }
-      //roundsStore.addRound(request);
+      request.bestOf = state.bestOf;
+      request.hasWinner = state.hasWinner;
+      request.nextRoundId = state.nextRoundId;
+      request.numTeams = state.numTeams;
+      request.rivals = state.rivals;
+      request.tournamentId = state.tournamentId;
+      request.winnerTeamId = state.winnerTeamId;
+      roundsStore.addRound(request);
     }
     else alert("Validation form failed!");
   }
   
   function getRounds() {
-    roundsStore.getAll();
+    roundsStore.getAll;
   }
   
   function clear() {
     v$.value.$reset();
-  
-    for (const [key, value] of Object.entries(initialState)) {
-      state[key] = value;
-    }
+    state.bestOf = 0;
+    state.hasWinner = false;
+    state.nextRoundId = 0;
+    state.numTeams = 0;
+    state.rivals = [];
+    state.tournamentId = 0;
+    state.winnerTeamId = 0;
   }
 </script>

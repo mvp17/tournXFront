@@ -1,6 +1,6 @@
 <template>
     <div>
-    <h1>Who are you</h1>
+    <h1>Who are you?</h1>
     <div class="card-container">
       <div class="card">
         <div class="card-content">

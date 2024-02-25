@@ -50,7 +50,7 @@
     import { router } from '../../../plugins/router/router';
     import { NewUserDto } from '../models/newUserDto';
 
-    const userStore = useUserStore();
+    const userStore = useUserStore;
 
     const initialState = {
         username: '',

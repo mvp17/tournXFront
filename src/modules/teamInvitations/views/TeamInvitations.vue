@@ -4,7 +4,7 @@
     <v-col>
       <form>
         <v-select
-          v-model="state.selectPlayer"
+          v-model="state.playerId"
           :items="players"
           :error-messages="(v$.selectPlayer.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Player"
@@ -14,7 +14,7 @@
         ></v-select>
 
         <v-select
-          v-model="state.selectTeam"
+          v-model="state.teamId"
           :items="teams"
           :error-messages="(v$.selectTeam.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Team"
@@ -33,6 +33,15 @@
           @blur="v$.message.$touch"
         ></v-text-field>
 
+        <v-checkbox
+          v-model="state.accepted"
+          :error-messages="(v$.accepted.$errors as VuelidateError[]).map((e) => e.$message)"
+          label="Accept invitation?"
+          required
+          @change="v$.accepted.$touch"
+          @blur="v$.accepted.$touch"
+        ></v-checkbox>
+
         <v-btn color="success" class="me-4" @click="submit"> submit </v-btn>
         <v-btn color="error" @click="clear"> clear </v-btn>
       </form>
@@ -48,12 +57,13 @@
         </thead>
         <tbody>
           <tr
-            v-for="teamInvitation in teamInvitationsList"
-            :key="teamInvitation.team"
+            v-for="teamInvitation in teamInvitations"
+            :key="teamInvitation.teamId"
           >
-            <td>{{ teamInvitation.player }}</td>
-            <td>{{ teamInvitation.team }}</td>
+            <td>{{ teamInvitation.playerId }}</td>
+            <td>{{ teamInvitation.teamId }}</td>
             <td>{{ teamInvitation.message }}</td>
+            <td>{{ teamInvitation.accepted }}</td>
           </tr>
         </tbody>
       </v-table>
@@ -61,36 +71,6 @@
   </v-row>
 </template>
 
-<script lang="ts">
-export default {
-  data() {
-    return {
-      teamInvitationsList: [
-        {
-          player: '1',
-          team: 'abc',
-          message: 'qwer',
-        },
-        {
-          player: '2',
-          team: 'abc',
-          message: 'tyui',
-        },
-        {
-          player: '3',
-          team: 'abc',
-          message: 'asdfg',
-        },
-        {
-          player: '4',
-          team: 'abc',
-          message: 'hjkl',
-        },
-      ],
-    };
-  },
-};
-</script>
 
 <script setup lang="ts">
   import { reactive } from 'vue';
@@ -100,14 +80,16 @@ export default {
   import { useTeamInvitationsStore } from '../stores/teamInvitationStore';
   import { computed } from '@vue/reactivity';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
+  import { TeamInvitationRequestDto } from '../models/teamInvitationRequestDto';
 
   const teamInvitationsStore = useTeamInvitationsStore();
   const teamInvitations = computed(() => teamInvitationsStore.teamInvitations);
 
   const initialState = {
     message: '',
-    selectPlayer: null,
-    selectTeam: null,
+    playerId: "",
+    teamId: "",
+    accepted: false
   };
 
   const state = reactive({
@@ -119,8 +101,9 @@ export default {
 
   const rules = {
     message: { required },
-    selectPlayer: { required },
-    selectTeam: { required },
+    playerId: { required },
+    teamId: { required },
+    accepted: { required }
   };
 
   const v$ = useVuelidate(rules, state);
@@ -131,25 +114,31 @@ export default {
 
   async function submit() {
     const result = await v$.value.$validate();
-    const request = {};
+    const request: TeamInvitationRequestDto = {
+      playerId: 0,
+      teamId: 0,
+      message: "",
+      accepted: false
+    };
     if (result) {
-      for (const key of Object.keys(initialState)) {
-        request[key] = state[key];
-      }
-      //teamInvitations.addTeamInvitation(request);
+      request.playerId = Number(state.playerId);
+      request.teamId = Number(state.teamId);
+      request.message = state.message;
+      request.accepted = state.accepted
+      teamInvitationsStore.addTeamInvitation(request);
     }
     else alert("Validation form failed!");
   }
 
   function getTeamInvitations() {
-    //teamInvitationsStore.getAll();
+    teamInvitationsStore.getAll;
   }
 
   function clear() {
     v$.value.$reset();
-
-    for (const [key, value] of Object.entries(initialState)) {
-      state[key] = value;
-    }
+    state.playerId = "";
+    state.teamId   = "";
+    state.message  = "";
+    state.accepted = false;
   }
 </script>

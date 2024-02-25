@@ -14,7 +14,7 @@
         ></v-text-field>
 
       <v-select
-          v-model="state.winner"
+          v-model="state.winnerTeamId"
           :items="teams"
           :error-messages="(v$.winner.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Winner Team"
@@ -25,7 +25,7 @@
       ></v-select>
 
       <v-select
-          v-model="state.round"
+          v-model="state.roundId"
           :items="rounds"
           :error-messages="(v$.round.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Round"
@@ -50,8 +50,7 @@
     </v-col>
     <v-col>
       <v-data-table
-        :headers="headers"
-        :items="matchesList"
+        :items="matches"
         class="elevation-1"
         item-key="name"
         items-per-page="5"
@@ -59,51 +58,7 @@
     </v-col>
   </v-row>
 </template>
-  
-<script lang="ts">
-  export default {
-    data() {
-      return {
-        matchesList: [
-          {
-            description: "sdfsdvcsdvcsd",
-            winner: -1,
-            round: 3,
-            hasWinner: false
-          },
-          {
-            description: "hrttyhrtvcwcwc",
-            winner: 1,
-            round: 2,
-            hasWinner: true
-          },
-        ],
-        headers: [
-          {
-            title: 'Description',
-            align: 'end',
-            key: 'description',
-          },
-          {
-            title: 'Winner team',
-            align: 'end',
-            key: 'winner',
-          },
-          {
-            title: 'Round',
-            align: 'end',
-            key: 'round',
-          },
-          {
-            title: 'Has a winner?',
-            align: 'end',
-            key: 'hasWinner',
-          }
-        ],
-      };
-    },
-  };
-</script>
+
   
 <script setup lang="ts">
   import { reactive } from 'vue';
@@ -113,6 +68,7 @@
   import { computed } from '@vue/reactivity';
   import { useMatchesStore } from '../stores/matchStore';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
+  import { MatchRequestDto } from '../models/matchRequestDto';
   
   const matchesStore = useMatchesStore();
   const matches = computed(() => matchesStore.matches);
@@ -122,8 +78,8 @@
 
   const initialState = {
     description: '',
-    winner: 0,
-    round: 0,
+    winnerTeamId: 0,
+    roundId: 0,
     hasWinner: false
   };
   
@@ -134,24 +90,31 @@
   const mustBeGreaterThan0 = (value: number) => value > 0;
   const rules = {
     description: { required },
-    winner: { required, numeric },
-    round: { required, mustBeGreaterThan0 },
+    winnerTeamId: { required, numeric },
+    roundId: { required, mustBeGreaterThan0 },
     hasWinner: { required },
   };
   
   const v$ = useVuelidate(rules, state);
   
   onMounted(() => {
-    //getMatches();
+    getMatches();
   });
   
   async function submit() {
     const result = await v$.value.$validate();
-    const request = {};
+    const request: MatchRequestDto = {
+      description: "",
+      winnerTeamId: 0,
+      roundId: 0,
+      hasWinner: false
+    };
+    
     if (result) {
-      for (const key of Object.keys(initialState)) {
-        request[key] = state[key];
-      }
+      request.description = state.description;
+      request.winnerTeamId = state.winnerTeamId;
+      request.roundId = state.roundId;
+      request.hasWinner = state.hasWinner;
       console.log(request)
       //matchesStore.addMatch(request);
     }
@@ -159,14 +122,14 @@
   }
   
   function getMatches() {
-    matchesStore.getAll();
+    matchesStore.getAll;
   }
   
   function clear() {
     v$.value.$reset();
-  
-    for (const [key, value] of Object.entries(initialState)) {
-      state[key] = value;
-    }
+    state.description = "";
+    state.winnerTeamId = 0;
+    state.roundId = 0;
+    state.hasWinner = false;
   }
 </script>

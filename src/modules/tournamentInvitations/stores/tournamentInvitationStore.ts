@@ -1,6 +1,7 @@
 import http from '../../../http-common';
 import { defineStore } from 'pinia';
 import { TournamentInvitation } from '../models/tournamentInvitation';
+import { TournamentInvitationRequestDto } from '../models/tournamentInvitationRequestDto';
 
 export const useTournamentInvitationsStore = defineStore(
   'tournamentInvitation',
@@ -21,7 +22,7 @@ export const useTournamentInvitationsStore = defineStore(
       },
     },
     actions: {
-      async addTournamentInvitation(newTournamentInvitation: TournamentInvitation) {
+      async addTournamentInvitation(newTournamentInvitation: TournamentInvitationRequestDto) {
         const apiResponse = await http.post(
           '/tournament-invitations',
           newTournamentInvitation
@@ -31,7 +32,7 @@ export const useTournamentInvitationsStore = defineStore(
           apiResponse.data,
         ];
       },
-      async updateTournamentInvitation(id: number, currentTournamentInvitation: TournamentInvitation) {
+      async updateTournamentInvitation(id: number, currentTournamentInvitation: TournamentInvitationRequestDto) {
         const apiResponse = await http.put(
           `/tournament-invitations/${id}`,
           currentTournamentInvitation

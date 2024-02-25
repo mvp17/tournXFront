@@ -1,6 +1,7 @@
 import http from '../../../http-common';
 import { defineStore } from 'pinia';
 import { Round } from '../models/round';
+import { RoundRequestDto } from '../models/roundRequestDto';
 
 export const useRoundsStore = defineStore('rounds', {
   state: () => ({
@@ -16,11 +17,11 @@ export const useRoundsStore = defineStore('rounds', {
     },
   },
   actions: {
-    async addRound(newRound: Round) {
+    async addRound(newRound: RoundRequestDto) {
       const apiResponse = await http.post('/rounds', newRound);
       this.rounds = [...this.rounds, apiResponse.data];
     },
-    async updateRound(id: number, currentRound: Round) {
+    async updateRound(id: number, currentRound: RoundRequestDto) {
       const apiResponse = await http.put(`/rounds/${id}`, currentRound);
       let roundsState = this.rounds.filter((round) => round.id !== id);
       roundsState.push(apiResponse.data);

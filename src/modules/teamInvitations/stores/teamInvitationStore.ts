@@ -1,6 +1,7 @@
 import http from '../../../http-common';
 import { defineStore } from 'pinia';
 import { TeamInvitation } from '../models/teamInvitation';
+import { TeamInvitationRequestDto } from '../models/teamInvitationRequestDto';
 
 export const useTeamInvitationsStore = defineStore('teamInvitation', {
   state: () => ({
@@ -19,14 +20,14 @@ export const useTeamInvitationsStore = defineStore('teamInvitation', {
     },
   },
   actions: {
-    async addTeamInvitation(newTeamInvitation: TeamInvitation) {
+    async addTeamInvitation(newTeamInvitation: TeamInvitationRequestDto) {
       const apiResponse = await http.post(
         '/team-invitations',
         newTeamInvitation
       );
       this.teamInvitations = [...this.teamInvitations, apiResponse.data];
     },
-    async updateTeamInvitation(id: number, currentTeamInvitation: TeamInvitation) {
+    async updateTeamInvitation(id: number, currentTeamInvitation: TeamInvitationRequestDto) {
       const apiResponse = await http.put(
         `/team-invitations/${id}`,
         currentTeamInvitation

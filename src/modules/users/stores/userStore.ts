@@ -24,19 +24,20 @@ export const useUserStore = defineStore('user', {
     },
     async loginPlayer(currentPlayer: LoginDto) {
       const data = await http.post("/player/login", currentPlayer);
+      
       this.user.email = data.data.email;
       this.user.token = data.data.token;
       this.user.username = data.data.username;
       //this.user.role = "PLAYER";
     },
-    async registerTournamentMaster(newTournamentMaster: User) {
+    async registerTournamentMaster(newTournamentMaster: NewUserDto) {
       const data = await http.post('/tournamentMaster/register', newTournamentMaster);
       this.user.email = data.data.email;
       this.user.token = data.data.token;
       this.user.username = data.data.username;
       //this.user.role = "TOURNAMENT MASTER";
     },
-    async loginTournamentMaster(currentTournamentMaster: User) {
+    async loginTournamentMaster(currentTournamentMaster: LoginDto) {
       const data = await http.post("/tournamentMaster/login", currentTournamentMaster);
       this.user.email = data.data.email;
       this.user.token = data.data.token;

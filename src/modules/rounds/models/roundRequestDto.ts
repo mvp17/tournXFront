@@ -1,5 +1,4 @@
-export interface Round {
-    id: number,
+export interface RoundRequestDto {
     bestOf: number,
     numTeams: number,
     winnerTeamId: number,

@@ -1,5 +1,5 @@
 <template>
-  <h1>Sign In</h1>
+  <h1>Sign In {{ role }}</h1>
   <div class="center-container">
     <v-card>
       <form>
@@ -41,6 +41,7 @@
   import { LoginDto } from '../models/loginDto';
 
   const userStore = useUserStore;
+  const role =  useUserStore.getUser.role;
 
   const initialState = {
     username: '',
@@ -61,8 +62,14 @@
     const request: LoginDto = { username: "", password: "" };
     if (result) {
       request.username = state.username;
-      request.password = state.password
-      await userStore.loginPlayer(request);
+      request.password = state.password;
+
+      if (userStore.getUser.role === "PLAYER") {
+        await userStore.loginPlayer(request);
+      }
+      else if (userStore.getUser.role === "TOURNAMENT MASTER") {
+        await userStore.loginTournamentMaster(request);
+      }
       router.push('/home');
     }
     else alert("Validation form failed!");
@@ -83,4 +90,3 @@
   height: 100vh; /* Adjust as needed */
 }
 </style>
-../../../plugins/router/router

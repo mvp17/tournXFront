@@ -93,14 +93,56 @@
           @blur="v$.maxTeamPlayers.$touch"
         ></v-text-field>
 
+        <v-select
+            v-model="state.participants"
+            :items="participants"
+            :error-messages="(v$.participants.$errors as VuelidateError[]).map((e) => e.$message)"
+            label="Participants"
+            multiple
+            required
+            @change="v$.participants.$touch"
+            @blur="v$.participants.$touch"
+            variant="outlined"
+        ></v-select>
+
+        <v-select
+            v-model="state.winnerTeamId"
+            :items="teams"
+            :error-messages="(v$.winnerTeamId.$errors as VuelidateError[]).map((e) => e.$message)"
+            label="Winner Team"
+            required
+            @change="v$.winnerTeamId.$touch"
+            @blur="v$.winnerTeamId.$touch"
+            variant="outlined"
+        ></v-select>
+
+        <v-text-field
+            v-model="state.bestOf"
+            :error-messages="(v$.bestOf.$errors as VuelidateError[]).map((e) => e.$message)"
+            :counter="10"
+            label="Best of"
+            required
+            @input="v$.bestOf.$touch"
+            @blur="v$.bestOf.$touch"
+        ></v-text-field>
+
+        <v-text-field
+          v-model="state.state"
+          :error-messages="(v$.state.$errors as VuelidateError[]).map((e) => e.$message)"
+          :counter="10"
+          label="State"
+          required
+          @input="v$.state.$touch"
+          @blur="v$.state.$touch"
+        ></v-text-field>
+
         <v-btn color="success" class="me-4" @click="submit"> submit </v-btn>
         <v-btn color="error" @click="clear"> clear </v-btn>
       </form>
     </v-col>
     <v-col>
       <v-data-table
-        :headers="headers"
-        :items="tournamentsList"
+        :items="tournaments"
         class="elevation-1"
         item-key="name"
         items-per-page="5"
@@ -109,81 +151,6 @@
   </v-row>
 </template>
 
-<script lang="ts">
-export default {
-  data() {
-    return {
-      tournamentsList: [
-        {
-          name: 'Liga santander',
-          level: 'First',
-          game: 'football',
-          type: '',
-          description: '',
-          minParticipants: '18',
-          maxParticipants: '36',
-          minTeamPlayers: '11',
-          maxTeamPlayers: '25',
-        },
-        {
-          name: 'Liga smartbank',
-          level: 'Second',
-          game: 'football',
-          type: '',
-          description: '',
-          minParticipants: '18',
-          maxParticipants: '32',
-          minTeamPlayers: '11',
-          maxTeamPlayers: '22',
-        },
-        {
-          name: 'ACB',
-          level: 'Pro',
-          game: 'basketball',
-          type: '',
-          description: '',
-          minParticipants: '7',
-          maxParticipants: '12',
-          minTeamPlayers: '8',
-          maxTeamPlayers: '12',
-        },
-      ],
-      headers: [
-        {
-          title: 'Name',
-          align: 'end',
-          key: 'name',
-        },
-        {
-          title: 'Game',
-          align: 'end',
-          key: 'game',
-        },
-        {
-          title: 'Minimum of Participants',
-          align: 'end',
-          key: 'minParticipants',
-        },
-        {
-          title: 'Maximum of Participants',
-          align: 'end',
-          key: 'maxParticipants',
-        },
-        {
-          title: 'Minimum of Team players',
-          align: 'end',
-          key: 'minTeamPlayers',
-        },
-        {
-          title: 'Maximum of Team players',
-          align: 'end',
-          key: 'maxTeamPlayers',
-        },
-      ],
-    };
-  },
-};
-</script>
 
 <script setup lang="ts">
   import { reactive } from 'vue';
@@ -193,20 +160,27 @@ export default {
   import { computed } from '@vue/reactivity';
   import { useTournamentsStore } from '../stores/tournamentStore';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
+  import { TournamentRequestDto } from '../models/tournamentRequestDto';
 
   const tournamentsStore = useTournamentsStore();
   const tournaments = computed(() => tournamentsStore.tournaments);
+  const teams = [1, 2, 3, 4];
+  const participants = [1, 2, 3, 4, 5];
 
   const initialState = {
     name: '',
-    level: '',
+    level: 0,
     game: '',
     type: '',
     description: '',
-    minParticipants: '',
-    maxParticipants: '',
-    minTeamPlayers: '',
-    maxTeamPlayers: '',
+    minParticipants: 0,
+    maxParticipants: 0,
+    minTeamPlayers: 0,
+    maxTeamPlayers: 0,
+    participants: [],
+    winnerTeamId: 0,
+    bestOf: 0,
+    state: 0
   };
 
   const state = reactive({
@@ -215,7 +189,7 @@ export default {
 
   const rules = {
     name: { required },
-    level: { required },
+    level: { required, numeric },
     game: { required },
     type: { required },
     description: { required },
@@ -223,6 +197,10 @@ export default {
     maxParticipants: { required, numeric },
     minTeamPlayers: { required, numeric },
     maxTeamPlayers: { required, numeric },
+    participants: { required },
+    winnerTeamId: { required, numeric },
+    bestOf: { required, numeric },
+    state: { required, numeric }
   };
 
   const v$ = useVuelidate(rules, state);
@@ -233,25 +211,59 @@ export default {
 
   async function submit() {
     const result = await v$.value.$validate();
-    const request = {};
+    const request: TournamentRequestDto = {
+      name: "",
+      level: 0,
+      game: "",
+      type: "",
+      description: "",
+      minParticipants: 0,
+      maxParticipants: 0,
+      minTeamPlayers: 0,
+      maxTeamPlayers: 0,
+      participants: [],
+      winnerTeamId: 0,
+      bestOf: 0,
+      state: 0
+    };
     if (result) {
-      for (const key of Object.keys(initialState)) {
-        request[key] = state[key];
-      }
+      request.name = state.name;
+      request.level = state.level;
+      request.game = state.game;
+      request.type = state.type;
+      request.description = state.description;
+      request.minParticipants = state.minParticipants;
+      request.maxParticipants = state.maxParticipants;
+      request.minTeamPlayers = state.minTeamPlayers;
+      request.maxTeamPlayers = state.maxTeamPlayers;
+      request.participants = state.participants;
+      request.winnerTeamId = state.winnerTeamId;
+      request.bestOf = state.bestOf;
+      request.state = state.state;
+
       tournamentsStore.addTournament(request);
     }
     else alert("Validation form failed!");
   }
 
   function getTournaments() {
-    tournamentsStore.getAll();
+    tournamentsStore.getAll;
   }
 
   function clear() {
     v$.value.$reset();
-
-    for (const [key, value] of Object.entries(initialState)) {
-      state[key] = value;
-    }
+    state.name = "";
+    state.level = 0;
+    state.game = "";
+    state.type = "";
+    state.description = "";
+    state.minParticipants = 0;
+    state.maxParticipants = 0;
+    state.minTeamPlayers = 0;
+    state.maxTeamPlayers = 0;
+    state.participants = [];
+    state.winnerTeamId = 0;
+    state.bestOf = 0;
+    state.state = 0;
   }
 </script>

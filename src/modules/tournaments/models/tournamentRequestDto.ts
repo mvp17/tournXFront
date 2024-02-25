@@ -1,5 +1,4 @@
-export interface Tournament {
-    id: number,
+export interface TournamentRequestDto {
     name: string,
     level: number,
     game: string,

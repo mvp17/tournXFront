@@ -4,7 +4,7 @@
     <v-col>
       <form>
         <v-select
-          v-model="state.selectTournament"
+          v-model="state.invitesTo_tournamentId"
           :items="tournaments"
           :error-messages="(v$.selectTournament.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Tournament"
@@ -14,7 +14,7 @@
         ></v-select>
 
         <v-select
-          v-model="state.selectTeam"
+          v-model="state.teamId"
           :items="teams"
           :error-messages="(v$.selectTeam.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Team"
@@ -43,16 +43,18 @@
           <tr>
             <th class="text-left">Tournament</th>
             <th class="text-left">Team</th>
+            <th class="text-left">Player</th>
             <th class="text-left">Message</th>
           </tr>
         </thead>
         <tbody>
           <tr
-            v-for="tournamentInvitation in tournamentInvitationsList"
-            :key="tournamentInvitation.tournament"
+            v-for="tournamentInvitation in tournamentInvitations"
+            :key="tournamentInvitation.invitesTo_tournamentId"
           >
-            <td>{{ tournamentInvitation.tournament }}</td>
-            <td>{{ tournamentInvitation.team }}</td>
+            <td>{{ tournamentInvitation.invitesTo_tournamentId }}</td>
+            <td>{{ tournamentInvitation.teamId }}</td>
+            <td>{{ tournamentInvitation.invitesTo_playerId }}</td>
             <td>{{ tournamentInvitation.message }}</td>
           </tr>
         </tbody>
@@ -61,102 +63,74 @@
   </v-row>
 </template>
 
-<script lang="ts">
-export default {
-  data() {
-    return {
-      tournamentInvitationsList: [
-        {
-          tournament: '1',
-          team: 'abc',
-          message: 'qwer',
-        },
-        {
-          tournament: '2',
-          team: 'abc',
-          message: 'tyui',
-        },
-        {
-          tournament: '3',
-          team: 'abc',
-          message: 'asdfg',
-        },
-        {
-          tournament: '4',
-          team: 'abc',
-          message: 'hjkl',
-        },
-      ],
-    };
-  },
-};
-</script>
 
 <script setup lang="ts">
   import { reactive } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
-  import { required } from '@vuelidate/validators';
+  import { required, numeric } from '@vuelidate/validators';
   import { onMounted } from 'vue';
   import { computed } from '@vue/reactivity';
   import { useTournamentInvitationsStore } from '../stores/tournamentInvitationStore';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
+  import { TournamentInvitationRequestDto } from '../models/tournamentInvitationRequestDto';
 
   const tournamentInvitationsStore = useTournamentInvitationsStore();
-  const tournamentInvitations = computed(
-    () => tournamentInvitationsStore.tournamentInvitations
-  );
+  const tournamentInvitations = computed(() => tournamentInvitationsStore.tournamentInvitations);
 
   const initialState = {
+    invitesTo_tournamentId: 0,
+    teamId: 0,
     message: '',
-    selectTournament: null,
-    selectTeam: null,
+    invitesTo_playerId: 0
   };
 
   const state = reactive({
     ...initialState,
   });
 
-  const tournaments = [
-    'Tournament 1',
-    'Tournament 2',
-    'Tournament 3',
-    'Tournament 4',
-  ];
-  const teams = ['Team 1', 'Team 2', 'Team 3', 'Team 4'];
+  const tournaments = [1, 2, 3, 4];
+  const teams = [1, 2, 3, 4];
 
   const rules = {
+    invitesTo_tournamentId: { required, numeric },
+    teamId: { required, numeric },
     message: { required },
-    selectTournament: { required },
-    selectTeam: { required },
+    invitesTo_playerId: { required, numeric },
   };
 
   const v$ = useVuelidate(rules, state);
 
   onMounted(() => {
-    //getTournamentInvitations();
+    getTournamentInvitations();
   });
 
   async function submit() {
     const result = await v$.value.$validate();
-    const request = {};
+    const request: TournamentInvitationRequestDto = {
+      invitesTo_tournamentId: 0,
+      teamId: 0,
+      message: "",
+      invitesTo_playerId: 0
+    };
     if (result) {
-      for (const key of Object.keys(initialState)) {
-        request[key] = state[key];
-      }
-      //tournamentInvitationsStore.addTournamentInvitation(request);
+      request.invitesTo_tournamentId = state.invitesTo_tournamentId;
+      request.teamId = state.teamId;
+      request.invitesTo_playerId = state.invitesTo_playerId;
+      request.message = state.message;
+      tournamentInvitationsStore.addTournamentInvitation(request);
     }
     else alert("Validation form failed!");
   }
 
   function getTournamentInvitations() {
-    tournamentInvitationsStore.getAll();
+    tournamentInvitationsStore.getAll;
   }
 
   function clear() {
     v$.value.$reset();
-
-    for (const [key, value] of Object.entries(initialState)) {
-      state[key] = value;
-    }
+    state.invitesTo_tournamentId = 0;
+    state.invitesTo_playerId = 0;
+    state.message = "";
+    state.teamId = 0;
   }
 </script>

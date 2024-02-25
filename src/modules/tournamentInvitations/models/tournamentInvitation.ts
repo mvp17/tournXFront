@@ -1,6 +1,7 @@
 export interface TournamentInvitation {
     id: number, 
-    tournament: string, 
-    team: string, 
-    message: string
+    invitesTo_tournamentId: number,
+    teamId: number, 
+    message: string,
+    invitesTo_playerId: number,
 }

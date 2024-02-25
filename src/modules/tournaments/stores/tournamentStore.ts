@@ -1,6 +1,7 @@
 import http from '../../../http-common';
 import { defineStore } from 'pinia';
 import { Tournament } from '../models/tournament';
+import { TournamentRequestDto } from '../models/tournamentRequestDto';
 
 export const useTournamentsStore = defineStore('tournaments', {
   state: () => ({
@@ -17,11 +18,11 @@ export const useTournamentsStore = defineStore('tournaments', {
     },
   },
   actions: {
-    async addTournament(newTournament: Tournament) {
+    async addTournament(newTournament: TournamentRequestDto) {
       const apiResponse = await http.post('/tournaments', newTournament);
       this.tournaments = [...this.tournaments, apiResponse.data];
     },
-    async updateTournament(id: number, currentTournament: Tournament) {
+    async updateTournament(id: number, currentTournament: TournamentRequestDto) {
       const apiResponse = await http.put(
         `/tournaments/${id}`,
         currentTournament

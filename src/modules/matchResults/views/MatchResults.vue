@@ -4,23 +4,23 @@
     <v-col>
       <form>
         <v-select
-          v-model="state.selectMatch"
+          v-model="state.matchId"
           :items="matches"
           :error-messages="(v$.selectMatch.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Match"
           required
-          @change="v$.selectMatch.$touch"
-          @blur="v$.selectMatch.$touch"
+          @change="v$.matchId.$touch"
+          @blur="v$.matchId.$touch"
         ></v-select>
 
         <v-select
-          v-model="state.selectWinnerTeam"
+          v-model="state.winnerTeamId"
           :items="teams"
           :error-messages="(v$.selectWinnerTeam.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Winner Team"
           required
-          @change="v$.selectWinnerTeam.$touch"
-          @blur="v$.selectWinnerTeam.$touch"
+          @change="v$.winnerTeamId.$touch"
+          @blur="v$.winnerTeamId.$touch"
         ></v-select>
 
         <v-text-field
@@ -47,7 +47,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="matchResult in matchResultsList" :key="matchResult.match">
+          <tr v-for="matchResult in matchResults" :key="matchResult.match">
             <td>{{ matchResult.match }}</td>
             <td>{{ matchResult.winnerTeam }}</td>
             <td>{{ matchResult.result }}</td>
@@ -58,96 +58,71 @@
   </v-row>
 </template>
 
-<script lang="ts">
-export default {
-  data() {
-    return {
-      matchResultsList: [
-        {
-          match: '1',
-          winnerTeam: 'abc',
-          result: '0-0',
-        },
-        {
-          match: '2',
-          winnerTeam: 'def',
-          result: '1-0',
-        },
-        {
-          match: '3',
-          winnerTeam: 'ghi',
-          result: '0-3',
-        },
-        {
-          match: '4',
-          winnerTeam: 'jkl',
-          result: '5-3',
-        },
-      ],
-    };
-  },
-};
-</script>
 
 <script setup lang="ts">
   import { reactive } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
-  import { required } from '@vuelidate/validators';
+  import { required, numeric } from '@vuelidate/validators';
   import { useMatchResultsStore } from '../stores/matchResultStore';
   import { onMounted } from 'vue';
   import { computed } from '@vue/reactivity';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
+  import { MatchResultRequestDto } from '../models/matchResultRequestDto';
 
   const matchResultsStore = useMatchResultsStore();
   const matchResults = computed(() => matchResultsStore.matchResults);
 
   const initialState = {
-    message: '',
     result: '',
-    selectMatch: null,
-    selectWinnerTeam: null,
+    matchId: 0,
+    winnerTeamId: 0,
   };
 
   const state = reactive({
     ...initialState,
   });
 
-  const matches = ['Match 1', 'Match 2', 'Match 3', 'Match 4'];
+  const matches = [1, 2, 3, 4];
+  const teams = [1, 2]
 
 
   const rules = {
     result: { required },
-    selectMatch: { required },
-    selectWinnerTeam: { required },
+    matchId: { required, numeric },
+    winnerTeamId: { required, numeric },
   };
 
   const v$ = useVuelidate(rules, state);
 
   onMounted(() => {
-    //getMatchResults();
+    getMatchResults();
   });
 
   async function submit() {
     const result = await v$.value.$validate();
-    const request = {};
+    const request: MatchResultRequestDto = {
+      matchId: 0,
+      winnerTeamId: 0,
+      result: ""
+    };
+
     if (result) {
-      for (const key of Object.keys(initialState)) {
-        request[key] = state[key];
-      }
-      //matchResultsStore.addMatchResult(request);
+      request.matchId = Number(state.matchId);
+      request.winnerTeamId = Number(state.winnerTeamId);
+      request.result = state.result;
+      matchResultsStore.addMatchResult(request);
     }
     else alert("Validation form failed!");
   }
 
   function getMatchResults() {
-    matchResultsStore.getAll();
+    matchResultsStore.getAll;
   }
 
   function clear() {
     v$.value.$reset();
-
-    for (const [key, value] of Object.entries(initialState)) {
-      state[key] = value;
-    }
+    state.matchId = 0;
+    state.winnerTeamId = 0;
+    state.result = "";
   }
 </script>
