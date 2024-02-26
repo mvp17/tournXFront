@@ -46,11 +46,26 @@
         ></v-text-field>
 
         <v-select
+            v-model="state.leaderPlayerId"
+            :items="players"
+            :error-messages="(v$.players.$errors as VuelidateError[]).map((e) => e.$message)"
+            label="Leader Player"
+            required
+            item-title="username"
+            item-value="id"
+            @change="v$.players.$touch"
+            @blur="v$.players.$touch"
+        ></v-select>
+
+        <v-select
             v-model="state.players"
             :items="players"
             :error-messages="(v$.players.$errors as VuelidateError[]).map((e) => e.$message)"
             label="Players"
             required
+            item-title="username"
+            item-value="id"
+            multiple
             @change="v$.players.$touch"
             @blur="v$.players.$touch"
             variant="outlined"
@@ -73,88 +88,94 @@
 
 
 <script setup lang="ts">
-import { reactive } from 'vue';
-import { useVuelidate } from '@vuelidate/core';
-import { required, numeric } from '@vuelidate/validators';
-import { onMounted } from 'vue';
-import { computed } from '@vue/reactivity';
-import { useTeamsStore } from '../stores/teamStore';
-import { VuelidateError } from '../../../core/interfaces/VuelidateError';
-import { TeamRequestDto } from '../models/teamRequestDto';
-import { usePlayerStore } from '../../users/stores/playerStore';
+  import { reactive } from 'vue';
+  import { useVuelidate } from '@vuelidate/core';
+  import { required, numeric } from '@vuelidate/validators';
+  import { onMounted } from 'vue';
+  import { computed } from '@vue/reactivity';
+  import { useTeamsStore } from '../stores/teamStore';
+  import { VuelidateError } from '../../../core/interfaces/VuelidateError';
+  import { TeamRequestDto } from '../models/teamRequestDto';
+  import { usePlayerStore } from '../../users/stores/playerStore';
+  import { toRaw } from 'vue';
 
-const teamsStore = useTeamsStore();
-const teams = computed(() => teamsStore.teams);
-const levels = [
-  { level: "Begginer", value: 0 },
-  { level: "Amateur", value: 1 },
-  { level: "Professional", value: 2 }
-];
-const playersStore = usePlayerStore();
-const players = computed(() => playersStore.players);
+  const teamsStore = useTeamsStore();
+  const teams = computed(() => teamsStore.teams);
+  const players = computed(() => toRaw(playersStore.players));
+  const levels = [
+    { level: "Begginer", value: 0 },
+    { level: "Amateur", value: 1 },
+    { level: "Professional", value: 2 }
+  ];
+  const playersStore = usePlayerStore();
 
-const initialState = {
-  name: '',
-  level: 0,
-  game: '',
-  maxPlayers: 0,
-  leaderPlayerId: 0,
-  players: []
-};
-
-const state = reactive({
-  ...initialState,
-});
-
-const rules = {
-  name: { required },
-  level: { required, numeric },
-  game: { required },
-  maxPlayers: { required, numeric },
-  leaderPlayerId: { required, numeric},
-  players: { required }
-};
-
-const v$ = useVuelidate(rules, state);
-
-onMounted(() => {
-  getTeams();
-});
-
-async function submit() {
-  const result = await v$.value.$validate();
-  const request: TeamRequestDto = {
-    name: "",
+  const initialState = {
+    name: '',
     level: 0,
-    game: "",
+    game: '',
     maxPlayers: 0,
-    leaderPlayerId: 0,
+    leaderPlayerId: '',
     players: []
   };
 
-  if (result) {
-    request.name = state.name;
-    request.level = state.level;
-    request.game = state.game;
-    request.maxPlayers = state.maxPlayers;
-    request.leaderPlayerId = state.leaderPlayerId;
-    request.players = state.players;
-    teamsStore.addTeam(request);
+  const state = reactive({
+    ...initialState,
+  });
+
+  const rules = {
+    name: { required },
+    level: { required, numeric },
+    game: { required },
+    maxPlayers: { required, numeric },
+    leaderPlayerId: { required },
+    players: { required }
+  };
+
+  const v$ = useVuelidate(rules, state);
+
+  onMounted(() => {
+    getTeams();
+    getPlayers();
+  });
+
+  async function submit() {
+    const result = await v$.value.$validate();
+    const request: TeamRequestDto = {
+      name: "",
+      level: 0,
+      game: "",
+      maxPlayers: 0,
+      leaderPlayerId: "",
+      players: []
+    };
+
+    if (result) {
+      request.name = state.name;
+      request.level = state.level;
+      request.game = state.game;
+      request.maxPlayers = state.maxPlayers;
+      request.leaderPlayerId = state.leaderPlayerId;
+      request.players = state.players;
+      teamsStore.addTeam(request);
+    }
+    else alert("Validation form failed!");
   }
-  else alert("Validation form failed!");
-}
 
-async function getTeams() {
-  await teamsStore.getAll;
-}
+  async function getTeams() {
+    await teamsStore.getAll;
+  }
 
-function clear() {
-  v$.value.$reset();
-  state.name = "";
-  state.level = 0;
-  state.game = "";
-  state.maxPlayers = 0;
-  state.leaderPlayerId = 0;
-  state.players = [];
-}
+  async function getPlayers() {
+    await playersStore.getAll;
+  }
+
+  function clear() {
+    v$.value.$reset();
+    state.name = "";
+    state.level = 0;
+    state.game = "";
+    state.maxPlayers = 0;
+    state.leaderPlayerId = "";
+    state.players = [];
+  }
 </script>

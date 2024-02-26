@@ -3,6 +3,6 @@ export interface TeamRequestDto {
     level: number, 
     game: string, 
     maxPlayers: number,
-    leaderPlayerId: number,
-    players: number[]
+    leaderPlayerId: string,
+    players: string[]
 }
