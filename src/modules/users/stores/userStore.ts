@@ -5,7 +5,7 @@ import { NewUserDto } from '../models/newUserDto';
 import { LoginDto } from '../models/loginDto';
 import { piniaInstance } from '../../../pinia';
 
-export const useUserStore = defineStore('user', {
+export const useUserStore = defineStore('users', {
   state: () => ({
     user: { username: "", email: "", role: "", token: "" } as User,
   }),

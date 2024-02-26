@@ -1,7 +1,9 @@
 export interface Team {
     id: number, 
     name: string, 
-    level: string, 
+    level: number, 
     game: string, 
-    maxPlayers: number
+    maxPlayers: number,
+    leaderPlayerId: number,
+    players: number[]
 }

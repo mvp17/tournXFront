@@ -13,15 +13,17 @@
           @blur="v$.name.$touch"
         ></v-text-field>
 
-        <v-text-field
-          v-model="state.level"
-          :error-messages="(v$.level.$errors as VuelidateError[]).map((e) => e.$message)"
-          :counter="10"
-          label="Level"
-          required
-          @input="v$.level.$touch"
-          @blur="v$.level.$touch"
-        ></v-text-field>
+        <v-select
+            v-model="state.level"
+            :items="levels"
+            :error-messages="(v$.level.$errors as VuelidateError[]).map((e) => e.$message)"
+            label="Level"
+            item-title="level"
+            item-value="value"
+            required
+            @change="v$.level.$touch"
+            @blur="v$.level.$touch"
+        ></v-select>
 
         <v-text-field
           v-model="state.game"
@@ -166,6 +168,11 @@
   const tournaments = computed(() => tournamentsStore.tournaments);
   const teams = [1, 2, 3, 4];
   const participants = [1, 2, 3, 4, 5];
+  const levels = [
+  { level: "Begginer", value: 0 },
+  { level: "Amateur", value: 1 },
+  { level: "Professional", value: 2 }
+];
 
   const initialState = {
     name: '',

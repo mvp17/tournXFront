@@ -3,9 +3,7 @@ import { defineStore } from 'pinia';
 import { TournamentInvitation } from '../models/tournamentInvitation';
 import { TournamentInvitationRequestDto } from '../models/tournamentInvitationRequestDto';
 
-export const useTournamentInvitationsStore = defineStore(
-  'tournamentInvitation',
-  {
+export const useTournamentInvitationsStore = defineStore('tournamentInvitations', {
     state: () => ({
       tournamentInvitations: [] as TournamentInvitation[],
     }),

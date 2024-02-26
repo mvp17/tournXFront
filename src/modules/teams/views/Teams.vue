@@ -13,15 +13,17 @@
           @blur="v$.name.$touch"
         ></v-text-field>
 
-        <v-text-field
-          v-model="state.level"
-          :error-messages="(v$.level.$errors as VuelidateError[]).map((e) => e.$message)"
-          :counter="10"
-          label="Level"
-          required
-          @input="v$.level.$touch"
-          @blur="v$.level.$touch"
-        ></v-text-field>
+        <v-select
+            v-model="state.level"
+            :items="levels"
+            :error-messages="(v$.level.$errors as VuelidateError[]).map((e) => e.$message)"
+            label="Level"
+            item-title="level"
+            item-value="value"
+            required
+            @change="v$.level.$touch"
+            @blur="v$.level.$touch"
+        ></v-select>
 
         <v-text-field
           v-model="state.game"
@@ -42,6 +44,17 @@
           @input="v$.maxPlayers.$touch"
           @blur="v$.maxPlayers.$touch"
         ></v-text-field>
+
+        <v-select
+            v-model="state.players"
+            :items="players"
+            :error-messages="(v$.players.$errors as VuelidateError[]).map((e) => e.$message)"
+            label="Players"
+            required
+            @change="v$.players.$touch"
+            @blur="v$.players.$touch"
+            variant="outlined"
+        ></v-select>
 
         <v-btn color="success" class="me-4" @click="submit"> submit </v-btn>
         <v-btn color="error" @click="clear"> clear </v-btn>
@@ -68,15 +81,25 @@ import { computed } from '@vue/reactivity';
 import { useTeamsStore } from '../stores/teamStore';
 import { VuelidateError } from '../../../core/interfaces/VuelidateError';
 import { TeamRequestDto } from '../models/teamRequestDto';
+import { usePlayerStore } from '../../users/stores/playerStore';
 
 const teamsStore = useTeamsStore();
 const teams = computed(() => teamsStore.teams);
+const levels = [
+  { level: "Begginer", value: 0 },
+  { level: "Amateur", value: 1 },
+  { level: "Professional", value: 2 }
+];
+const playersStore = usePlayerStore();
+const players = computed(() => playersStore.players);
 
 const initialState = {
   name: '',
-  level: '',
+  level: 0,
   game: '',
   maxPlayers: 0,
+  leaderPlayerId: 0,
+  players: []
 };
 
 const state = reactive({
@@ -85,9 +108,11 @@ const state = reactive({
 
 const rules = {
   name: { required },
-  level: { required },
+  level: { required, numeric },
   game: { required },
   maxPlayers: { required, numeric },
+  leaderPlayerId: { required, numeric},
+  players: { required }
 };
 
 const v$ = useVuelidate(rules, state);
@@ -100,9 +125,11 @@ async function submit() {
   const result = await v$.value.$validate();
   const request: TeamRequestDto = {
     name: "",
-    level: "",
+    level: 0,
     game: "",
-    maxPlayers: 0
+    maxPlayers: 0,
+    leaderPlayerId: 0,
+    players: []
   };
 
   if (result) {
@@ -110,6 +137,8 @@ async function submit() {
     request.level = state.level;
     request.game = state.game;
     request.maxPlayers = state.maxPlayers;
+    request.leaderPlayerId = state.leaderPlayerId;
+    request.players = state.players;
     teamsStore.addTeam(request);
   }
   else alert("Validation form failed!");
@@ -122,8 +151,10 @@ async function getTeams() {
 function clear() {
   v$.value.$reset();
   state.name = "";
-  state.level = "";
+  state.level = 0;
   state.game = "";
   state.maxPlayers = 0;
+  state.leaderPlayerId = 0;
+  state.players = [];
 }
 </script>

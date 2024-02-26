@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { TeamInvitation } from '../models/teamInvitation';
 import { TeamInvitationRequestDto } from '../models/teamInvitationRequestDto';
 
-export const useTeamInvitationsStore = defineStore('teamInvitation', {
+export const useTeamInvitationsStore = defineStore('teamInvitations', {
   state: () => ({
     teamInvitations: [] as TeamInvitation[],
   }),

@@ -34,7 +34,6 @@
             variant="outlined"
         ></v-select>
 
-
         <v-select
             v-model="state.rivals"
             :items="rivals"
