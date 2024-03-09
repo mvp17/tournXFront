@@ -6,21 +6,25 @@
         <v-select
           v-model="state.playerId"
           :items="players"
-          :error-messages="(v$.selectPlayer.$errors as VuelidateError[]).map((e) => e.$message)"
+          :error-messages="(v$.playerId.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Player"
           required
-          @change="v$.selectPlayer.$touch"
-          @blur="v$.selectPlayer.$touch"
+          item-title="username"
+          item-value="id"
+          @change="v$.playerId.$touch"
+          @blur="v$.playerId.$touch"
         ></v-select>
 
         <v-select
           v-model="state.teamId"
           :items="teams"
-          :error-messages="(v$.selectTeam.$errors as VuelidateError[]).map((e) => e.$message)"
+          :error-messages="(v$.teamId.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Team"
           required
-          @change="v$.selectTeam.$touch"
-          @blur="v$.selectTeam.$touch"
+          item-title="name"
+          item-value="id"
+          @change="v$.teamId.$touch"
+          @blur="v$.teamId.$touch"
         ></v-select>
 
         <v-text-field
@@ -53,6 +57,7 @@
             <th class="text-left">Player</th>
             <th class="text-left">Team</th>
             <th class="text-left">Message</th>
+            <th class="text-left">Invitation accepted</th>
           </tr>
         </thead>
         <tbody>
@@ -73,7 +78,7 @@
 
 
 <script setup lang="ts">
-  import { reactive } from 'vue';
+  import { reactive, toRaw } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
   import { required } from '@vuelidate/validators';
   import { onMounted } from 'vue';
@@ -81,14 +86,21 @@
   import { computed } from '@vue/reactivity';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
   import { TeamInvitationRequestDto } from '../models/teamInvitationRequestDto';
+  import { usePlayerStore } from '../../users/stores/playerStore';
+  import { useTeamsStore } from '../../teams/stores/teamStore';
+  import { mustBeGreaterThan0 } from '../../../core/utils/functions';
 
   const teamInvitationsStore = useTeamInvitationsStore();
   const teamInvitations = computed(() => teamInvitationsStore.teamInvitations);
+  const playersStore = usePlayerStore();
+  const players = computed(() => toRaw(playersStore.players));
+  const teamsStore = useTeamsStore();
+  const teams = computed(() => toRaw(teamsStore.teams));
 
   const initialState = {
     message: '',
-    playerId: "",
-    teamId: "",
+    playerId: 0,
+    teamId: 0,
     accepted: false
   };
 
@@ -96,13 +108,10 @@
     ...initialState,
   });
 
-  const players = ['Player 1', 'Player 2', 'Player 3', 'Player 4'];
-  const teams = ['Team 1', 'Team 2', 'Team 3', 'Team 4'];
-
   const rules = {
     message: { required },
-    playerId: { required },
-    teamId: { required },
+    playerId: { required, mustBeGreaterThan0 },
+    teamId: { required, mustBeGreaterThan0 },
     accepted: { required }
   };
 
@@ -110,6 +119,7 @@
 
   onMounted(() => {
     getTeamInvitations();
+    getPlayers();
   });
 
   async function submit() {
@@ -121,23 +131,27 @@
       accepted: false
     };
     if (result) {
-      request.playerId = Number(state.playerId);
-      request.teamId = Number(state.teamId);
-      request.message = state.message;
+      request.playerId = state.playerId;
+      request.teamId   = state.teamId;
+      request.message  = state.message;
       request.accepted = state.accepted
       teamInvitationsStore.addTeamInvitation(request);
     }
     else alert("Validation form failed!");
   }
 
-  function getTeamInvitations() {
-    teamInvitationsStore.getAll;
+  async function getTeamInvitations() {
+    await teamInvitationsStore.getAll;
+  }
+
+  async function getPlayers() {
+    await playersStore.getAll;
   }
 
   function clear() {
     v$.value.$reset();
-    state.playerId = "";
-    state.teamId   = "";
+    state.playerId = 0;
+    state.teamId   = 0;
     state.message  = "";
     state.accepted = false;
   }

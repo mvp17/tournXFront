@@ -6,9 +6,11 @@
         <v-select
           v-model="state.matchId"
           :items="matches"
-          :error-messages="(v$.selectMatch.$errors as VuelidateError[]).map((e) => e.$message)"
+          :error-messages="(v$.matchId.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Match"
           required
+          item-title="description"
+          item-value="id"
           @change="v$.matchId.$touch"
           @blur="v$.matchId.$touch"
         ></v-select>
@@ -16,9 +18,11 @@
         <v-select
           v-model="state.winnerTeamId"
           :items="teams"
-          :error-messages="(v$.selectWinnerTeam.$errors as VuelidateError[]).map((e) => e.$message)"
+          :error-messages="(v$.winnerTeamId.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Winner Team"
           required
+          item-title="name"
+          item-value="id"
           @change="v$.winnerTeamId.$touch"
           @blur="v$.winnerTeamId.$touch"
         ></v-select>
@@ -60,7 +64,7 @@
 
 
 <script setup lang="ts">
-  import { reactive } from 'vue';
+  import { reactive, toRaw } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
   import { required, numeric } from '@vuelidate/validators';
   import { useMatchResultsStore } from '../stores/matchResultStore';
@@ -68,9 +72,16 @@
   import { computed } from '@vue/reactivity';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
   import { MatchResultRequestDto } from '../models/matchResultRequestDto';
+  import { useMatchesStore } from '../../matches/stores/matchStore';
+  import { useTeamsStore } from '../../teams/stores/teamStore';
+  import { mustBeGreaterThan0 } from '../../../core/utils/functions';
 
   const matchResultsStore = useMatchResultsStore();
   const matchResults = computed(() => matchResultsStore.matchResults);
+  const matchesStore = useMatchesStore();
+  const matches = computed(() => matchesStore.matches);
+  const teamsStore = useTeamsStore();
+  const teams = computed(() => toRaw(teamsStore.teams));
 
   const initialState = {
     result: '',
@@ -82,14 +93,10 @@
     ...initialState,
   });
 
-  const matches = [1, 2, 3, 4];
-  const teams = [1, 2]
-
-
   const rules = {
     result: { required },
-    matchId: { required, numeric },
-    winnerTeamId: { required, numeric },
+    matchId: { required, numeric, mustBeGreaterThan0 },
+    winnerTeamId: { required, numeric, mustBeGreaterThan0 },
   };
 
   const v$ = useVuelidate(rules, state);
@@ -107,9 +114,9 @@
     };
 
     if (result) {
-      request.matchId = Number(state.matchId);
-      request.winnerTeamId = Number(state.winnerTeamId);
-      request.result = state.result;
+      request.matchId      = state.matchId;
+      request.winnerTeamId = state.winnerTeamId;
+      request.result       = state.result;
       matchResultsStore.addMatchResult(request);
     }
     else alert("Validation form failed!");
@@ -121,8 +128,8 @@
 
   function clear() {
     v$.value.$reset();
-    state.matchId = 0;
+    state.matchId      = 0;
     state.winnerTeamId = 0;
-    state.result = "";
+    state.result       = "";
   }
 </script>

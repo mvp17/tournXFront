@@ -88,7 +88,7 @@
 
 
 <script setup lang="ts">
-  import { reactive } from 'vue';
+  import { reactive, toRaw } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
   import { required, numeric } from '@vuelidate/validators';
   import { onMounted } from 'vue';
@@ -97,7 +97,6 @@
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
   import { TeamRequestDto } from '../models/teamRequestDto';
   import { usePlayerStore } from '../../users/stores/playerStore';
-  import { toRaw } from 'vue';
   import { mustBeGreaterThan0 } from '../../../core/utils/functions';
 
   const teamsStore = useTeamsStore();

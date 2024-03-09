@@ -2,6 +2,7 @@ import http from '../../../http-common';
 import { defineStore } from 'pinia';
 import { MatchResult } from '../models/matchResult';
 import { MatchResultRequestDto } from '../models/matchResultRequestDto';
+import { useUserStore } from '../../users/stores/userStore';
 
 export const useMatchResultsStore = defineStore('matchResults', {
   state: () => ({
@@ -9,7 +10,12 @@ export const useMatchResultsStore = defineStore('matchResults', {
   }),
   getters: {
     getAll: async (state) => {
-      const apiResponse = await http.get('/match-results');
+      http.interceptors.request.use(async (request) => {
+        const token = useUserStore.getUser.token;
+        if (token !== "") request.headers.Authorization = `Bearer ${token}`;
+        return request;
+      });
+      const apiResponse = await http.get('/matchResult');
       state.matchResults = apiResponse.data;
     },
     getById: (state) => {
@@ -19,14 +25,11 @@ export const useMatchResultsStore = defineStore('matchResults', {
   },
   actions: {
     async addMatchResult(newMatchResult: MatchResultRequestDto) {
-      const apiResponse = await http.post('/match-results', newMatchResult);
+      const apiResponse = await http.post('/matchResult', newMatchResult);
       this.matchResults = [...this.matchResults, apiResponse.data];
     },
     async updateMatchResult(id: number, currentMatchResult: MatchResultRequestDto) {
-      const apiResponse = await http.put(
-        `/match-results/${id}`,
-        currentMatchResult
-      );
+      const apiResponse = await http.put(`/matchResult/${id}`, currentMatchResult);
       let matchResultState = this.matchResults.filter(
         (matchResult) => matchResult.id !== id
       );
@@ -34,7 +37,7 @@ export const useMatchResultsStore = defineStore('matchResults', {
       this.matchResults = matchResultState;
     },
     async removeMatchResult(id: number) {
-      await http.delete(`/match-results/${id}`);
+      await http.delete(`/matchResult/${id}`);
       this.matchResults = this.matchResults.filter(
         (matchResult) => matchResult.id !== id
       );

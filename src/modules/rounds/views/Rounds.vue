@@ -33,18 +33,20 @@
             @blur="v$.numTeams.$touch"
           ></v-text-field>
 
-        <v-select
+          <v-select
             v-model="state.winnerTeamId"
             :items="teams"
-            :error-messages="(v$.winner.$errors as VuelidateError[]).map((e) => e.$message)"
+            :error-messages="(v$.winnerTeamId.$errors as VuelidateError[]).map((e) => e.$message)"
             label="Winner Team"
             required
-            @change="v$.winner.$touch"
-            @blur="v$.winner.$touch"
+            item-title="name"
+            item-value="id"
+            @change="v$.winnerTeamId.$touch"
+            @blur="v$.winnerTeamId.$touch"
             variant="outlined"
-        ></v-select>
+          ></v-select>
 
-        <v-select
+          <v-select
             v-model="state.rivals"
             :items="teams"
             :error-messages="(v$.rivals.$errors as VuelidateError[]).map((e) => e.$message)"
@@ -54,29 +56,33 @@
             @change="v$.rivals.$touch"
             @blur="v$.rivals.$touch"
             variant="outlined"
-        ></v-select>
+          ></v-select>
 
-        <v-select
+          <v-select
             v-model="state.nextRoundId"
-            :items="nextRounds"
-            :error-messages="(v$.nextRound.$errors as VuelidateError[]).map((e) => e.$message)"
+            :items="rounds"
+            :error-messages="(v$.nextRoundId.$errors as VuelidateError[]).map((e) => e.$message)"
             label="Next Round"
             required
-            @change="v$.nextRound.$touch"
-            @blur="v$.nextRound.$touch"
+            item-title="description"
+            item-value="id"
+            @change="v$.nextRoundId.$touch"
+            @blur="v$.nextRoundId.$touch"
             variant="outlined"
-        ></v-select>
+          ></v-select>
 
-        <v-select
+          <v-select
             v-model="state.tournamentId"
             :items="tournaments"
-            :error-messages="(v$.tournament.$errors as VuelidateError[]).map((e) => e.$message)"
+            :error-messages="(v$.tournamentId.$errors as VuelidateError[]).map((e) => e.$message)"
             label="Tournament"
             required
-            @change="v$.tournament.$touch"
-            @blur="v$.tournament.$touch"
+            item-title="name"
+            item-value="id"
+            @change="v$.tournamentId.$touch"
+            @blur="v$.tournamentId.$touch"
             variant="outlined"
-        ></v-select>
+          ></v-select>
   
           <v-checkbox
             v-model="state.hasWinner"
@@ -113,13 +119,15 @@
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
   import { RoundRequestDto } from '../models/roundRequestDto';
   import { useTeamsStore } from '../../teams/stores/teamStore';
+  import { mustBeGreaterThan0 } from '../../../core/utils/functions';
+  import { useTournamentsStore } from '../../tournaments/stores/tournamentStore';
   
   const roundsStore = useRoundsStore();
-  const rounds = computed(() => roundsStore.rounds);
+  const rounds = computed(() => toRaw(roundsStore.rounds));
   const teamsStore = useTeamsStore();
   const teams = computed(() => toRaw(teamsStore.teams));
-  const nextRounds = [11, 12, 13, 14];
-  const tournaments = [100, 200, 300, 400];
+  const tournamentsStore = useTournamentsStore();
+  const tournaments = computed(() => toRaw(tournamentsStore.tournaments));
   
   const initialState = {
     bestOf: 0,
@@ -139,11 +147,11 @@
   const rules = {
     bestOf:       { required, numeric },
     description:  { required },
-    numTeams:     { required, numeric },
-    winnerTeamId: { required, numeric },
+    numTeams:     { required, numeric, mustBeGreaterThan0 },
+    winnerTeamId: { required, numeric, mustBeGreaterThan0 },
     rivals:       { required },
-    nextRoundId:  { required, numeric },
-    tournamentId: { required, numeric },
+    nextRoundId:  { required, numeric, mustBeGreaterThan0 },
+    tournamentId: { required, numeric, mustBeGreaterThan0 },
     hasWinner:    { required },
   };
   

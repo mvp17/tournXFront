@@ -16,26 +16,26 @@
       <v-select
           v-model="state.winnerTeamId"
           :items="teams"
-          :error-messages="(v$.winner.$errors as VuelidateError[]).map((e) => e.$message)"
+          :error-messages="(v$.winnerTeamId.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Winner Team"
           required
           item-title="name"
           item-value="id"
-          @change="v$.winner.$touch"
-          @blur="v$.winner.$touch"
+          @change="v$.winnerTeamId.$touch"
+          @blur="v$.winnerTeamId.$touch"
           variant="outlined"
       ></v-select>
 
       <v-select
           v-model="state.roundId"
           :items="rounds"
-          :error-messages="(v$.round.$errors as VuelidateError[]).map((e) => e.$message)"
+          :error-messages="(v$.roundId.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Round"
           required
           item-title="description"
           item-value="id"
-          @change="v$.round.$touch"
-          @blur="v$.round.$touch"
+          @change="v$.roundId.$touch"
+          @blur="v$.roundId.$touch"
           variant="outlined"
       ></v-select>
 

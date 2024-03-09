@@ -2,6 +2,7 @@ import http from '../../../http-common';
 import { defineStore } from 'pinia';
 import { TeamInvitation } from '../models/teamInvitation';
 import { TeamInvitationRequestDto } from '../models/teamInvitationRequestDto';
+import { useUserStore } from '../../users/stores/userStore';
 
 export const useTeamInvitationsStore = defineStore('teamInvitations', {
   state: () => ({
@@ -9,7 +10,12 @@ export const useTeamInvitationsStore = defineStore('teamInvitations', {
   }),
   getters: {
     getAll: async (state) => {
-      const apiResponse = await http.get('/team-invitations');
+      http.interceptors.request.use(async (request) => {
+        const token = useUserStore.getUser.token;
+        if (token !== "") request.headers.Authorization = `Bearer ${token}`;
+        return request;
+      });
+      const apiResponse = await http.get('/teamInvitation');
       state.teamInvitations = apiResponse.data;
     },
     getById: (state) => {
@@ -21,17 +27,11 @@ export const useTeamInvitationsStore = defineStore('teamInvitations', {
   },
   actions: {
     async addTeamInvitation(newTeamInvitation: TeamInvitationRequestDto) {
-      const apiResponse = await http.post(
-        '/team-invitations',
-        newTeamInvitation
-      );
+      const apiResponse = await http.post('/teamInvitation', newTeamInvitation);
       this.teamInvitations = [...this.teamInvitations, apiResponse.data];
     },
     async updateTeamInvitation(id: number, currentTeamInvitation: TeamInvitationRequestDto) {
-      const apiResponse = await http.put(
-        `/team-invitations/${id}`,
-        currentTeamInvitation
-      );
+      const apiResponse = await http.put(`/teamInvitation/${id}`, currentTeamInvitation);
       let teamInvitationsState = this.teamInvitations.filter(
         (teamInvitation) => teamInvitation.id !== id
       );
@@ -39,7 +39,7 @@ export const useTeamInvitationsStore = defineStore('teamInvitations', {
       this.teamInvitations = teamInvitationsState;
     },
     async removeTeamInvitation(id: number) {
-      await http.delete(`/team-invitations/${id}`);
+      await http.delete(`/teamInvitation/${id}`);
       this.teamInvitations = this.teamInvitations.filter(
         (teamInvitation) => teamInvitation.id !== id
       );
