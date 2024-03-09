@@ -4,6 +4,16 @@
       <v-col>
         <form>
           <v-text-field
+            v-model="state.description"
+            :error-messages="(v$.description.$errors as VuelidateError[]).map((e) => e.$message)"
+            :counter="10"
+            label="Description"
+            required
+            @input="v$.description.$touch"
+            @blur="v$.description.$touch"
+          ></v-text-field>
+
+          <v-text-field
             v-model="state.bestOf"
             :error-messages="(v$.bestOf.$errors as VuelidateError[]).map((e) => e.$message)"
             :counter="10"
@@ -36,7 +46,7 @@
 
         <v-select
             v-model="state.rivals"
-            :items="rivals"
+            :items="teams"
             :error-messages="(v$.rivals.$errors as VuelidateError[]).map((e) => e.$message)"
             label="Rivals"
             multiple
@@ -94,7 +104,7 @@
 
   
 <script setup lang="ts">
-  import { reactive } from 'vue';
+  import { reactive, toRaw } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
   import { required, numeric } from '@vuelidate/validators';
   import { onMounted } from 'vue';
@@ -102,17 +112,18 @@
   import { useRoundsStore } from '../stores/roundStore';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
   import { RoundRequestDto } from '../models/roundRequestDto';
+  import { useTeamsStore } from '../../teams/stores/teamStore';
   
   const roundsStore = useRoundsStore();
   const rounds = computed(() => roundsStore.rounds);
-
-  const teams = [1, 2, 3, 4];
-  const rivals = [5, 22, 13, 74];
+  const teamsStore = useTeamsStore();
+  const teams = computed(() => toRaw(teamsStore.teams));
   const nextRounds = [11, 12, 13, 14];
   const tournaments = [100, 200, 300, 400];
   
   const initialState = {
     bestOf: 0,
+    description: "",
     numTeams: 0,
     winnerTeamId: 0,
     rivals: [],
@@ -126,13 +137,14 @@
   });
   
   const rules = {
-    bestOf: { required, numeric },
-    numTeams: { required, numeric },
+    bestOf:       { required, numeric },
+    description:  { required },
+    numTeams:     { required, numeric },
     winnerTeamId: { required, numeric },
-    rivals: { required },
-    nextRoundId: { required, numeric },
+    rivals:       { required },
+    nextRoundId:  { required, numeric },
     tournamentId: { required, numeric },
-    hasWinner: { required },
+    hasWinner:    { required },
   };
   
   const v$ = useVuelidate(rules, state);
@@ -145,6 +157,7 @@
     const result = await v$.value.$validate();
     const request: RoundRequestDto = {
       bestOf: 0,
+      description: "",
       numTeams: 0,
       winnerTeamId: 0,
       rivals: [],
@@ -153,11 +166,12 @@
       hasWinner: false
     };
     if (result) {
-      request.bestOf = state.bestOf;
-      request.hasWinner = state.hasWinner;
-      request.nextRoundId = state.nextRoundId;
-      request.numTeams = state.numTeams;
-      request.rivals = state.rivals;
+      request.bestOf       = state.bestOf;
+      request.description  = state.description;
+      request.hasWinner    = state.hasWinner;
+      request.nextRoundId  = state.nextRoundId;
+      request.numTeams     = state.numTeams;
+      request.rivals       = state.rivals;
       request.tournamentId = state.tournamentId;
       request.winnerTeamId = state.winnerTeamId;
       roundsStore.addRound(request);
@@ -172,6 +186,7 @@
   function clear() {
     v$.value.$reset();
     state.bestOf = 0;
+    state.description = "";
     state.hasWinner = false;
     state.nextRoundId = 0;
     state.numTeams = 0;

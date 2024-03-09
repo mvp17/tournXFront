@@ -98,16 +98,17 @@
   import { TeamRequestDto } from '../models/teamRequestDto';
   import { usePlayerStore } from '../../users/stores/playerStore';
   import { toRaw } from 'vue';
+  import { mustBeGreaterThan0 } from '../../../core/utils/functions';
 
   const teamsStore = useTeamsStore();
   const teams = computed(() => teamsStore.teams);
+  const playersStore = usePlayerStore();
   const players = computed(() => toRaw(playersStore.players));
   const levels = [
     { level: "Begginer", value: 0 },
     { level: "Amateur", value: 1 },
     { level: "Professional", value: 2 }
   ];
-  const playersStore = usePlayerStore();
 
   const initialState = {
     name: '',
@@ -126,16 +127,16 @@
     name: { required },
     level: { required, numeric },
     game: { required },
-    maxPlayers: { required, numeric },
-    leaderPlayerId: { required },
+    maxPlayers: { required, numeric, mustBeGreaterThan0 },
+    leaderPlayerId: { required, mustBeGreaterThan0 },
     players: { required }
   };
 
   const v$ = useVuelidate(rules, state);
 
-  onMounted(() => {
-    getTeams();
-    getPlayers();
+  onMounted(async () => {
+    await teamsStore.getAll;
+    await playersStore.getAll;
   });
 
   async function submit() {
@@ -156,17 +157,10 @@
       request.maxPlayers = state.maxPlayers;
       request.leaderPlayerId = state.leaderPlayerId;
       request.players = state.players;
-      teamsStore.addTeam(request);
+      
+      await teamsStore.addTeam(request);
     }
     else alert("Validation form failed!");
-  }
-
-  async function getTeams() {
-    await teamsStore.getAll;
-  }
-
-  async function getPlayers() {
-    await playersStore.getAll;
   }
 
   function clear() {

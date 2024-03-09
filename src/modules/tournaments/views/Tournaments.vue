@@ -97,11 +97,13 @@
 
         <v-select
             v-model="state.participants"
-            :items="participants"
+            :items="teams"
             :error-messages="(v$.participants.$errors as VuelidateError[]).map((e) => e.$message)"
             label="Participants"
             multiple
             required
+            item-title="name"
+            item-value="id"
             @change="v$.participants.$touch"
             @blur="v$.participants.$touch"
             variant="outlined"
@@ -113,6 +115,8 @@
             :error-messages="(v$.winnerTeamId.$errors as VuelidateError[]).map((e) => e.$message)"
             label="Winner Team"
             required
+            item-title="name"
+            item-value="id"
             @change="v$.winnerTeamId.$touch"
             @blur="v$.winnerTeamId.$touch"
             variant="outlined"
@@ -155,7 +159,7 @@
 
 
 <script setup lang="ts">
-  import { reactive } from 'vue';
+  import { reactive, toRaw } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
   import { required, numeric } from '@vuelidate/validators';
   import { onMounted } from 'vue';
@@ -163,16 +167,18 @@
   import { useTournamentsStore } from '../stores/tournamentStore';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
   import { TournamentRequestDto } from '../models/tournamentRequestDto';
+  import { useTeamsStore } from '../../teams/stores/teamStore';
+  import { mustBeGreaterThan0 } from '../../../core/utils/functions';
 
   const tournamentsStore = useTournamentsStore();
   const tournaments = computed(() => tournamentsStore.tournaments);
-  const teams = [1, 2, 3, 4];
-  const participants = [1, 2, 3, 4, 5];
+  const teamsStore = useTeamsStore();
+  const teams = computed(() => toRaw(teamsStore.teams));
   const levels = [
-  { level: "Begginer", value: 0 },
-  { level: "Amateur", value: 1 },
-  { level: "Professional", value: 2 }
-];
+    { level: "Begginer", value: 0 },
+    { level: "Amateur", value: 1 },
+    { level: "Professional", value: 2 }
+  ];
 
   const initialState = {
     name: '',
@@ -200,20 +206,21 @@
     game: { required },
     type: { required },
     description: { required },
-    minParticipants: { required, numeric },
-    maxParticipants: { required, numeric },
-    minTeamPlayers: { required, numeric },
-    maxTeamPlayers: { required, numeric },
+    minParticipants: { required, numeric, mustBeGreaterThan0 },
+    maxParticipants: { required, numeric, mustBeGreaterThan0 },
+    minTeamPlayers: { required, numeric, mustBeGreaterThan0 },
+    maxTeamPlayers: { required, numeric, mustBeGreaterThan0 },
     participants: { required },
-    winnerTeamId: { required, numeric },
+    winnerTeamId: { required, numeric, mustBeGreaterThan0 },
     bestOf: { required, numeric },
     state: { required, numeric }
   };
 
   const v$ = useVuelidate(rules, state);
 
-  onMounted(() => {
-    getTournaments();
+  onMounted(async () => {
+    await tournamentsStore.getAll;
+    await teamsStore.getAll;
   });
 
   async function submit() {
@@ -234,27 +241,23 @@
       state: 0
     };
     if (result) {
-      request.name = state.name;
-      request.level = state.level;
-      request.game = state.game;
-      request.type = state.type;
-      request.description = state.description;
+      request.name            = state.name;
+      request.level           = state.level;
+      request.game            = state.game;
+      request.type            = state.type;
+      request.description     = state.description;
       request.minParticipants = state.minParticipants;
       request.maxParticipants = state.maxParticipants;
-      request.minTeamPlayers = state.minTeamPlayers;
-      request.maxTeamPlayers = state.maxTeamPlayers;
-      request.participants = state.participants;
-      request.winnerTeamId = state.winnerTeamId;
-      request.bestOf = state.bestOf;
-      request.state = state.state;
+      request.minTeamPlayers  = state.minTeamPlayers;
+      request.maxTeamPlayers  = state.maxTeamPlayers;
+      request.participants    = state.participants;
+      request.winnerTeamId    = state.winnerTeamId;
+      request.bestOf          = state.bestOf;
+      request.state           = state.state;
 
-      tournamentsStore.addTournament(request);
+      await tournamentsStore.addTournament(request);
     }
     else alert("Validation form failed!");
-  }
-
-  function getTournaments() {
-    tournamentsStore.getAll;
   }
 
   function clear() {

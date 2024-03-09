@@ -19,6 +19,8 @@
           :error-messages="(v$.winner.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Winner Team"
           required
+          item-title="name"
+          item-value="id"
           @change="v$.winner.$touch"
           @blur="v$.winner.$touch"
           variant="outlined"
@@ -30,6 +32,8 @@
           :error-messages="(v$.round.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Round"
           required
+          item-title="description"
+          item-value="id"
           @change="v$.round.$touch"
           @blur="v$.round.$touch"
           variant="outlined"
@@ -61,7 +65,7 @@
 
   
 <script setup lang="ts">
-  import { reactive } from 'vue';
+  import { reactive, toRaw } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
   import { required, numeric } from '@vuelidate/validators';
   import { onMounted } from 'vue';
@@ -69,12 +73,16 @@
   import { useMatchesStore } from '../stores/matchStore';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
   import { MatchRequestDto } from '../models/matchRequestDto';
+  import { useTeamsStore } from '../../teams/stores/teamStore';
+  import { useRoundsStore } from '../../rounds/stores/roundStore';
+  import { mustBeGreaterThan0 } from '../../../core/utils/functions';
   
   const matchesStore = useMatchesStore();
   const matches = computed(() => matchesStore.matches);
-
-  const teams = [1, 2, 3, 4];
-  const rounds = [11, 12, 13, 14];
+  const teamsStore = useTeamsStore();
+  const teams = computed(() => toRaw(teamsStore.teams));
+  const roundsStore = useRoundsStore();
+  const rounds = computed(() => toRaw(roundsStore.rounds));
 
   const initialState = {
     description: '',
@@ -87,18 +95,20 @@
     ...initialState,
   });
   
-  const mustBeGreaterThan0 = (value: number) => value > 0;
+  
   const rules = {
-    description: { required },
-    winnerTeamId: { required, numeric },
-    roundId: { required, mustBeGreaterThan0 },
-    hasWinner: { required },
+    description:  { required },
+    winnerTeamId: { required, numeric, mustBeGreaterThan0 },
+    roundId:      { required, mustBeGreaterThan0, numeric },
+    hasWinner:    { required },
   };
   
   const v$ = useVuelidate(rules, state);
   
   onMounted(() => {
     getMatches();
+    getTeams();
+    getRounds();
   });
   
   async function submit() {
@@ -111,18 +121,26 @@
     };
     
     if (result) {
-      request.description = state.description;
+      request.description  = state.description;
       request.winnerTeamId = state.winnerTeamId;
-      request.roundId = state.roundId;
-      request.hasWinner = state.hasWinner;
+      request.roundId      = state.roundId;
+      request.hasWinner    = state.hasWinner;
       console.log(request)
-      //matchesStore.addMatch(request);
+      matchesStore.addMatch(request);
     }
     else alert("Validation form failed!");
   }
   
   function getMatches() {
     matchesStore.getAll;
+  }
+
+  function getTeams() {
+    teamsStore.getAll;
+  }
+
+  function getRounds() {
+    roundsStore.getAll;
   }
   
   function clear() {

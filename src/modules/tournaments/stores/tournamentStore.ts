@@ -2,6 +2,7 @@ import http from '../../../http-common';
 import { defineStore } from 'pinia';
 import { Tournament } from '../models/tournament';
 import { TournamentRequestDto } from '../models/tournamentRequestDto';
+import { useUserStore } from '../../users/stores/userStore';
 
 export const useTournamentsStore = defineStore('tournaments', {
   state: () => ({
@@ -9,7 +10,12 @@ export const useTournamentsStore = defineStore('tournaments', {
   }),
   getters: {
     getAll: async (state) => {
-      const apiResponse = await http.get('/tournaments');
+      http.interceptors.request.use(async (request) => {
+        const token = useUserStore.getUser.token;
+        if (token !== "") request.headers.Authorization = `Bearer ${token}`;
+        return request;
+      });
+      const apiResponse = await http.get('/tournament');
       state.tournaments = apiResponse.data;
     },
     getById: (state) => {

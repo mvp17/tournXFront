@@ -1,5 +1,6 @@
 export interface RoundRequestDto {
     bestOf: number,
+    description: string,
     numTeams: number,
     winnerTeamId: number,
     rivals: number[],

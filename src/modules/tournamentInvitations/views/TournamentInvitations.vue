@@ -6,21 +6,37 @@
         <v-select
           v-model="state.invitesTo_tournamentId"
           :items="tournaments"
-          :error-messages="(v$.selectTournament.$errors as VuelidateError[]).map((e) => e.$message)"
-          label="Tournament"
+          :error-messages="(v$.invitesTo_tournamentId.$errors as VuelidateError[]).map((e) => e.$message)"
+          label="Invites to tournament"
           required
-          @change="v$.selectTournament.$touch"
-          @blur="v$.selectTournament.$touch"
+          item-title="name"
+          item-value="id"
+          @change="v$.invitesTo_tournamentId.$touch"
+          @blur="v$.invitesTo_tournamentId.$touch"
         ></v-select>
 
         <v-select
           v-model="state.teamId"
           :items="teams"
-          :error-messages="(v$.selectTeam.$errors as VuelidateError[]).map((e) => e.$message)"
+          :error-messages="(v$.teamId.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Team"
           required
-          @change="v$.selectTeam.$touch"
-          @blur="v$.selectTeam.$touch"
+          item-title="name"
+          item-value="id"
+          @change="v$.teamId.$touch"
+          @blur="v$.teamId.$touch"
+        ></v-select>
+
+        <v-select
+          v-model="state.invitesTo_playerId"
+          :items="players"
+          :error-messages="(v$.invitesTo_playerId.$errors as VuelidateError[]).map((e) => e.$message)"
+          label="Invites player"
+          required
+          item-title="username"
+          item-value="id"
+          @change="v$.invitesTo_playerId.$touch"
+          @blur="v$.invitesTo_playerId.$touch"
         ></v-select>
 
         <v-text-field
@@ -65,7 +81,7 @@
 
 
 <script setup lang="ts">
-  import { reactive } from 'vue';
+  import { reactive, toRaw } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
   import { required, numeric } from '@vuelidate/validators';
   import { onMounted } from 'vue';
@@ -73,9 +89,19 @@
   import { useTournamentInvitationsStore } from '../stores/tournamentInvitationStore';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
   import { TournamentInvitationRequestDto } from '../models/tournamentInvitationRequestDto';
+  import { useTournamentsStore } from '../../tournaments/stores/tournamentStore';
+  import { useTeamsStore } from '../../teams/stores/teamStore';
+  import { mustBeGreaterThan0 } from '../../../core/utils/functions';
+  import { usePlayerStore } from '../../users/stores/playerStore';
 
   const tournamentInvitationsStore = useTournamentInvitationsStore();
   const tournamentInvitations = computed(() => tournamentInvitationsStore.tournamentInvitations);
+  const tournamentsStore = useTournamentsStore();
+  const tournaments = computed(() => toRaw(tournamentsStore.tournaments));
+  const teamsStore = useTeamsStore();
+  const teams = computed(() => toRaw(teamsStore.teams));
+  const playersStore = usePlayerStore();
+  const players = computed(() => toRaw(playersStore.players));
 
   const initialState = {
     invitesTo_tournamentId: 0,
@@ -88,20 +114,19 @@
     ...initialState,
   });
 
-  const tournaments = [1, 2, 3, 4];
-  const teams = [1, 2, 3, 4];
-
   const rules = {
-    invitesTo_tournamentId: { required, numeric },
-    teamId: { required, numeric },
+    invitesTo_tournamentId: { required, numeric, mustBeGreaterThan0 },
+    teamId: { required, numeric, mustBeGreaterThan0 },
     message: { required },
-    invitesTo_playerId: { required, numeric },
+    invitesTo_playerId: { required, numeric, mustBeGreaterThan0 },
   };
 
   const v$ = useVuelidate(rules, state);
 
   onMounted(() => {
     getTournamentInvitations();
+    getTeams();
+    getPlayers();
   });
 
   async function submit() {
@@ -122,8 +147,16 @@
     else alert("Validation form failed!");
   }
 
-  function getTournamentInvitations() {
-    tournamentInvitationsStore.getAll;
+  async function getTournamentInvitations() {
+    await tournamentInvitationsStore.getAll;
+  }
+
+  async function getTeams() {
+    await teamsStore.getAll;
+  }
+
+  async function getPlayers() {
+    await playersStore.getAll;
   }
 
   function clear() {

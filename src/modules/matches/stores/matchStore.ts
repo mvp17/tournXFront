@@ -1,6 +1,7 @@
 import http from '../../../http-common';
 import { defineStore } from 'pinia';
 import { Match } from '../models/match';
+import { MatchRequestDto } from '../models/matchRequestDto';
 
 export const useMatchesStore = defineStore('matches', {
   state: () => ({
@@ -16,11 +17,11 @@ export const useMatchesStore = defineStore('matches', {
     },
   },
   actions: {
-    async addMatch(newMatch: Match) {
+    async addMatch(newMatch: MatchRequestDto) {
       const apiResponse = await http.post('/matches', newMatch);
       this.matches = [...this.matches, apiResponse.data];
     },
-    async updateMatch(id: number, currentMatch: Match) {
+    async updateMatch(id: number, currentMatch: MatchRequestDto) {
       const apiResponse = await http.put(`/matches/${id}`, currentMatch);
       let matchesState = this.matches.filter((match) => match.id !== id);
       matchesState.push(apiResponse.data);

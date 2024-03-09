@@ -1,5 +1,6 @@
 export interface Round {
     id: number,
+    description: string,
     bestOf: number,
     numTeams: number,
     winnerTeamId: number,
