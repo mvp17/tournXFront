@@ -106,8 +106,8 @@
   const initialState = {
     invitesTo_tournamentId: 0,
     teamId: 0,
-    message: '',
-    invitesTo_playerId: 0
+    message: "",
+    invitesTo_playerId: ""
   };
 
   const state = reactive({
@@ -116,9 +116,9 @@
 
   const rules = {
     invitesTo_tournamentId: { required, numeric, mustBeGreaterThan0 },
-    teamId: { required, numeric, mustBeGreaterThan0 },
-    message: { required },
-    invitesTo_playerId: { required, numeric, mustBeGreaterThan0 },
+    teamId:                 { required, numeric, mustBeGreaterThan0 },
+    message:                { required },
+    invitesTo_playerId:     { required },
   };
 
   const v$ = useVuelidate(rules, state);
@@ -135,14 +135,15 @@
       invitesTo_tournamentId: 0,
       teamId: 0,
       message: "",
-      invitesTo_playerId: 0
+      invitesTo_playerId: ""
     };
     if (result) {
       request.invitesTo_tournamentId = state.invitesTo_tournamentId;
-      request.teamId = state.teamId;
-      request.invitesTo_playerId = state.invitesTo_playerId;
-      request.message = state.message;
-      tournamentInvitationsStore.addTournamentInvitation(request);
+      request.teamId                 = state.teamId;
+      request.invitesTo_playerId     = state.invitesTo_playerId;
+      request.message                = state.message;
+
+      await tournamentInvitationsStore.addTournamentInvitation(request);
     }
     else alert("Validation form failed!");
   }
@@ -162,8 +163,8 @@
   function clear() {
     v$.value.$reset();
     state.invitesTo_tournamentId = 0;
-    state.invitesTo_playerId = 0;
-    state.message = "";
-    state.teamId = 0;
+    state.invitesTo_playerId     = "";
+    state.message                = "";
+    state.teamId                 = 0;
   }
 </script>

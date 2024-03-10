@@ -1,5 +1,5 @@
 export interface TeamInvitationRequestDto {
-    playerId: number, 
+    playerId: string, 
     teamId: number, 
     message: string,
     accepted: boolean

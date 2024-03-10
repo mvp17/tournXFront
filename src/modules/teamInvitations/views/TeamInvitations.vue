@@ -98,8 +98,8 @@
   const teams = computed(() => toRaw(teamsStore.teams));
 
   const initialState = {
-    message: '',
-    playerId: 0,
+    message: "",
+    playerId: "",
     teamId: 0,
     accepted: false
   };
@@ -109,9 +109,9 @@
   });
 
   const rules = {
-    message: { required },
-    playerId: { required, mustBeGreaterThan0 },
-    teamId: { required, mustBeGreaterThan0 },
+    message:  { required },
+    playerId: { required },
+    teamId:   { required, mustBeGreaterThan0 },
     accepted: { required }
   };
 
@@ -125,7 +125,7 @@
   async function submit() {
     const result = await v$.value.$validate();
     const request: TeamInvitationRequestDto = {
-      playerId: 0,
+      playerId: "",
       teamId: 0,
       message: "",
       accepted: false
@@ -135,7 +135,10 @@
       request.teamId   = state.teamId;
       request.message  = state.message;
       request.accepted = state.accepted
-      teamInvitationsStore.addTeamInvitation(request);
+
+      await teamInvitationsStore.addTeamInvitation(request);
+      await teamInvitationsStore.getAll;
+      clear();
     }
     else alert("Validation form failed!");
   }
@@ -150,7 +153,7 @@
 
   function clear() {
     v$.value.$reset();
-    state.playerId = 0;
+    state.playerId = "";
     state.teamId   = 0;
     state.message  = "";
     state.accepted = false;

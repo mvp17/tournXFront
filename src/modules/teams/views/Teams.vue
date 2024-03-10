@@ -36,11 +36,12 @@
         ></v-text-field>
 
         <v-text-field
-          v-model="state.maxPlayers"
+          v-model.number="state.maxPlayers"
           :error-messages="(v$.maxPlayers.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Maximum of players"
           required
+          type="number"
           @input="v$.maxPlayers.$touch"
           @blur="v$.maxPlayers.$touch"
         ></v-text-field>
@@ -48,13 +49,13 @@
         <v-select
             v-model="state.leaderPlayerId"
             :items="players"
-            :error-messages="(v$.players.$errors as VuelidateError[]).map((e) => e.$message)"
+            :error-messages="(v$.leaderPlayerId.$errors as VuelidateError[]).map((e) => e.$message)"
             label="Leader Player"
             required
             item-title="username"
             item-value="id"
-            @change="v$.players.$touch"
-            @blur="v$.players.$touch"
+            @change="v$.leaderPlayerId.$touch"
+            @blur="v$.leaderPlayerId.$touch"
         ></v-select>
 
         <v-select
@@ -90,22 +91,21 @@
 <script setup lang="ts">
   import { reactive, toRaw } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
-  import { required, numeric } from '@vuelidate/validators';
+  import { required, numeric, minLength, between } from '@vuelidate/validators';
   import { onMounted } from 'vue';
   import { computed } from '@vue/reactivity';
   import { useTeamsStore } from '../stores/teamStore';
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
   import { TeamRequestDto } from '../models/teamRequestDto';
   import { usePlayerStore } from '../../users/stores/playerStore';
-  import { mustBeGreaterThan0 } from '../../../core/utils/functions';
 
   const teamsStore = useTeamsStore();
   const teams = computed(() => teamsStore.teams);
   const playersStore = usePlayerStore();
   const players = computed(() => toRaw(playersStore.players));
   const levels = [
-    { level: "Begginer", value: 0 },
-    { level: "Amateur", value: 1 },
+    { level: "Begginer",     value: 0 },
+    { level: "Amateur",      value: 1 },
     { level: "Professional", value: 2 }
   ];
 
@@ -114,7 +114,7 @@
     level: 0,
     game: '',
     maxPlayers: 0,
-    leaderPlayerId: '',
+    leaderPlayerId: "",
     players: []
   };
 
@@ -123,12 +123,12 @@
   });
 
   const rules = {
-    name: { required },
-    level: { required, numeric },
-    game: { required },
-    maxPlayers: { required, numeric, mustBeGreaterThan0 },
-    leaderPlayerId: { required, mustBeGreaterThan0 },
-    players: { required }
+    name:           { required, minLength: minLength(5) },
+    level:          { required, numeric },
+    game:           { required },
+    maxPlayers:     { required, numeric, between: between(2, 11) },
+    leaderPlayerId: { required },
+    players:        { required }
   };
 
   const v$ = useVuelidate(rules, state);
@@ -150,25 +150,27 @@
     };
 
     if (result) {
-      request.name = state.name;
-      request.level = state.level;
-      request.game = state.game;
-      request.maxPlayers = state.maxPlayers;
+      request.name           = state.name;
+      request.level          = state.level;
+      request.game           = state.game;
+      request.maxPlayers     = state.maxPlayers;
       request.leaderPlayerId = state.leaderPlayerId;
-      request.players = state.players;
+      request.players        = toRaw(state.players);
       
       await teamsStore.addTeam(request);
+      await teamsStore.getAll;
+      clear();
     }
     else alert("Validation form failed!");
   }
 
   function clear() {
     v$.value.$reset();
-    state.name = "";
-    state.level = 0;
-    state.game = "";
-    state.maxPlayers = 0;
+    state.name           = "";
+    state.level          = 0;
+    state.game           = "";
+    state.maxPlayers     = 0;
     state.leaderPlayerId = "";
-    state.players = [];
+    state.players        = [];
   }
 </script>

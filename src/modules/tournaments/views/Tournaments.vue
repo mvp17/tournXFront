@@ -56,41 +56,45 @@
         ></v-text-field>
 
         <v-text-field
-          v-model="state.minParticipants"
+          v-model.number="state.minParticipants"
           :error-messages="(v$.minParticipants.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Minimum of participants"
           required
+          type="number"
           @input="v$.minParticipants.$touch"
           @blur="v$.minParticipants.$touch"
         ></v-text-field>
 
         <v-text-field
-          v-model="state.maxParticipants"
+          v-model.number="state.maxParticipants"
           :error-messages="(v$.maxParticipants.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Maximum of participants"
           required
+          type="number"
           @input="v$.maxParticipants.$touch"
           @blur="v$.maxParticipants.$touch"
         ></v-text-field>
 
         <v-text-field
-          v-model="state.minTeamPlayers"
+          v-model.number="state.minTeamPlayers"
           :error-messages="(v$.minTeamPlayers.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Minimum of team players"
           required
+          type="number"
           @input="v$.minTeamPlayers.$touch"
           @blur="v$.minTeamPlayers.$touch"
         ></v-text-field>
 
         <v-text-field
-          v-model="state.maxTeamPlayers"
+          v-model.number="state.maxTeamPlayers"
           :error-messages="(v$.maxTeamPlayers.$errors as VuelidateError[]).map((e) => e.$message)"
           :counter="10"
           label="Maximum of team players"
           required
+          type="number"
           @input="v$.maxTeamPlayers.$touch"
           @blur="v$.maxTeamPlayers.$touch"
         ></v-text-field>
@@ -123,24 +127,27 @@
         ></v-select>
 
         <v-text-field
-            v-model="state.bestOf"
+            v-model.number="state.bestOf"
             :error-messages="(v$.bestOf.$errors as VuelidateError[]).map((e) => e.$message)"
             :counter="10"
             label="Best of"
             required
+            type="number"
             @input="v$.bestOf.$touch"
             @blur="v$.bestOf.$touch"
         ></v-text-field>
 
-        <v-text-field
-          v-model="state.state"
-          :error-messages="(v$.state.$errors as VuelidateError[]).map((e) => e.$message)"
-          :counter="10"
-          label="State"
-          required
-          @input="v$.state.$touch"
-          @blur="v$.state.$touch"
-        ></v-text-field>
+        <v-select
+            v-model="state.state"
+            :items="states"
+            :error-messages="(v$.state.$errors as VuelidateError[]).map((e) => e.$message)"
+            label="State"
+            item-title="state"
+            item-value="value"
+            required
+            @change="v$.state.$touch"
+            @blur="v$.state.$touch"
+        ></v-select>
 
         <v-btn color="success" class="me-4" @click="submit"> submit </v-btn>
         <v-btn color="error" @click="clear"> clear </v-btn>
@@ -161,7 +168,7 @@
 <script setup lang="ts">
   import { reactive, toRaw } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
-  import { required, numeric } from '@vuelidate/validators';
+  import { required, numeric, minLength } from '@vuelidate/validators';
   import { onMounted } from 'vue';
   import { computed } from '@vue/reactivity';
   import { useTournamentsStore } from '../stores/tournamentStore';
@@ -179,13 +186,22 @@
     { level: "Amateur", value: 1 },
     { level: "Professional", value: 2 }
   ];
+  const states = [
+    { state: "Uninitialized", value: 0 },
+    { state: "Initializing",  value: 1 },
+    { state: "Initialized",   value: 2 },
+    { state: "In progress",   value: 3 },
+    { state: "Finished",      value: 4 },
+    { state: "Closed",        value: 5 },
+    { state: "To archive",    value: 6 }
+  ]
 
   const initialState = {
-    name: '',
+    name: "",
     level: 0,
-    game: '',
-    type: '',
-    description: '',
+    game: "",
+    type: "",
+    description: "",
     minParticipants: 0,
     maxParticipants: 0,
     minTeamPlayers: 0,
@@ -201,19 +217,19 @@
   });
 
   const rules = {
-    name: { required },
-    level: { required, numeric },
-    game: { required },
-    type: { required },
-    description: { required },
+    name:            { required, minLength: minLength(5) },
+    level:           { required, numeric },
+    game:            { required },
+    type:            { required },
+    description:     { required },
     minParticipants: { required, numeric, mustBeGreaterThan0 },
     maxParticipants: { required, numeric, mustBeGreaterThan0 },
-    minTeamPlayers: { required, numeric, mustBeGreaterThan0 },
-    maxTeamPlayers: { required, numeric, mustBeGreaterThan0 },
-    participants: { required },
-    winnerTeamId: { required, numeric, mustBeGreaterThan0 },
-    bestOf: { required, numeric },
-    state: { required, numeric }
+    minTeamPlayers:  { required, numeric, mustBeGreaterThan0 },
+    maxTeamPlayers:  { required, numeric, mustBeGreaterThan0 },
+    participants:    { required },
+    winnerTeamId:    { required, numeric, mustBeGreaterThan0 },
+    bestOf:          { required, numeric },
+    state:           { required, numeric }
   };
 
   const v$ = useVuelidate(rules, state);
@@ -250,30 +266,33 @@
       request.maxParticipants = state.maxParticipants;
       request.minTeamPlayers  = state.minTeamPlayers;
       request.maxTeamPlayers  = state.maxTeamPlayers;
-      request.participants    = state.participants;
+      request.participants    = toRaw(state.participants);
       request.winnerTeamId    = state.winnerTeamId;
       request.bestOf          = state.bestOf;
       request.state           = state.state;
 
+      console.log(request)
       await tournamentsStore.addTournament(request);
+      await tournamentsStore.getAll;
+      clear();
     }
     else alert("Validation form failed!");
   }
 
   function clear() {
     v$.value.$reset();
-    state.name = "";
-    state.level = 0;
-    state.game = "";
-    state.type = "";
-    state.description = "";
+    state.name            = "";
+    state.level           = 0;
+    state.game            = "";
+    state.type            = "";
+    state.description     = "";
     state.minParticipants = 0;
     state.maxParticipants = 0;
-    state.minTeamPlayers = 0;
-    state.maxTeamPlayers = 0;
-    state.participants = [];
-    state.winnerTeamId = 0;
-    state.bestOf = 0;
-    state.state = 0;
+    state.minTeamPlayers  = 0;
+    state.maxTeamPlayers  = 0;
+    state.participants    = [];
+    state.winnerTeamId    = 0;
+    state.bestOf          = 0;
+    state.state           = 0;
   }
 </script>
