@@ -271,7 +271,6 @@
       request.bestOf          = state.bestOf;
       request.state           = state.state;
 
-      console.log(request)
       await tournamentsStore.addTournament(request);
       await tournamentsStore.getAll;
       clear();

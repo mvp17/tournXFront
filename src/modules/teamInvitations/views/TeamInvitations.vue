@@ -117,9 +117,9 @@
 
   const v$ = useVuelidate(rules, state);
 
-  onMounted(() => {
-    getTeamInvitations();
-    getPlayers();
+  onMounted(async () => {
+    await teamInvitationsStore.getAll;
+    await playersStore.getAll;
   });
 
   async function submit() {
@@ -141,14 +141,6 @@
       clear();
     }
     else alert("Validation form failed!");
-  }
-
-  async function getTeamInvitations() {
-    await teamInvitationsStore.getAll;
-  }
-
-  async function getPlayers() {
-    await playersStore.getAll;
   }
 
   function clear() {

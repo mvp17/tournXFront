@@ -45,15 +45,17 @@
       <v-table fixed-header>
         <thead>
           <tr>
+            <th class="text-left">Match result</th>
             <th class="text-left">Match</th>
             <th class="text-left">Winner team</th>
             <th class="text-left">Result</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="matchResult in matchResults" :key="matchResult.match">
-            <td>{{ matchResult.match }}</td>
-            <td>{{ matchResult.winnerTeam }}</td>
+          <tr v-for="matchResult in matchResults" :key="matchResult.matchId">
+            <td>{{ matchResult.id }}</td>
+            <td>{{ matchResult.matchId }}</td>
+            <td>{{ matchResult.winnerTeamId }}</td>
             <td>{{ matchResult.result }}</td>
           </tr>
         </tbody>
@@ -66,7 +68,7 @@
 <script setup lang="ts">
   import { reactive, toRaw } from 'vue';
   import { useVuelidate } from '@vuelidate/core';
-  import { required, numeric } from '@vuelidate/validators';
+  import { required, numeric, minLength } from '@vuelidate/validators';
   import { useMatchResultsStore } from '../stores/matchResultStore';
   import { onMounted } from 'vue';
   import { computed } from '@vue/reactivity';
@@ -94,15 +96,15 @@
   });
 
   const rules = {
-    result: { required },
-    matchId: { required, numeric, mustBeGreaterThan0 },
+    result:       { required, minLength: minLength(5) },
+    matchId:      { required, numeric, mustBeGreaterThan0 },
     winnerTeamId: { required, numeric, mustBeGreaterThan0 },
   };
 
   const v$ = useVuelidate(rules, state);
 
-  onMounted(() => {
-    getMatchResults();
+  onMounted(async () => {
+    await matchResultsStore.getAll;
   });
 
   async function submit() {
@@ -117,13 +119,12 @@
       request.matchId      = state.matchId;
       request.winnerTeamId = state.winnerTeamId;
       request.result       = state.result;
-      matchResultsStore.addMatchResult(request);
+      
+      await matchResultsStore.addMatchResult(request);
+      await matchResultsStore.getAll;
+      clear();
     }
     else alert("Validation form failed!");
-  }
-
-  function getMatchResults() {
-    matchResultsStore.getAll;
   }
 
   function clear() {

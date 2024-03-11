@@ -14,21 +14,23 @@
           ></v-text-field>
 
           <v-text-field
-            v-model="state.bestOf"
+            v-model.number="state.bestOf"
             :error-messages="(v$.bestOf.$errors as VuelidateError[]).map((e) => e.$message)"
             :counter="10"
             label="Best of"
             required
+            type="number"
             @input="v$.bestOf.$touch"
             @blur="v$.bestOf.$touch"
           ></v-text-field>
   
           <v-text-field
-            v-model="state.numTeams"
+            v-model.number="state.numTeams"
             :error-messages="(v$.numTeams.$errors as VuelidateError[]).map((e) => e.$message)"
             :counter="10"
             label="Number of teams"
             required
+            type="number"
             @input="v$.numTeams.$touch"
             @blur="v$.numTeams.$touch"
           ></v-text-field>
@@ -53,6 +55,8 @@
             label="Rivals"
             multiple
             required
+            item-title="name"
+            item-value="id"
             @change="v$.rivals.$touch"
             @blur="v$.rivals.$touch"
             variant="outlined"
@@ -150,15 +154,17 @@
     numTeams:     { required, numeric, mustBeGreaterThan0 },
     winnerTeamId: { required, numeric, mustBeGreaterThan0 },
     rivals:       { required },
-    nextRoundId:  { required, numeric, mustBeGreaterThan0 },
+    nextRoundId:  { required, numeric },
     tournamentId: { required, numeric, mustBeGreaterThan0 },
     hasWinner:    { required },
   };
   
   const v$ = useVuelidate(rules, state);
   
-  onMounted(() => {
-    getRounds();
+  onMounted(async () => {
+    await roundsStore.getAll;
+    await teamsStore.getAll;
+    await tournamentsStore.getAll;
   });
   
   async function submit() {
@@ -179,26 +185,25 @@
       request.hasWinner    = state.hasWinner;
       request.nextRoundId  = state.nextRoundId;
       request.numTeams     = state.numTeams;
-      request.rivals       = state.rivals;
+      request.rivals       = toRaw(state.rivals);
       request.tournamentId = state.tournamentId;
       request.winnerTeamId = state.winnerTeamId;
-      roundsStore.addRound(request);
+
+      await roundsStore.addRound(request);
+      await roundsStore.getAll;
+      clear();
     }
     else alert("Validation form failed!");
   }
   
-  function getRounds() {
-    roundsStore.getAll;
-  }
-  
   function clear() {
     v$.value.$reset();
-    state.bestOf = 0;
-    state.description = "";
-    state.hasWinner = false;
-    state.nextRoundId = 0;
-    state.numTeams = 0;
-    state.rivals = [];
+    state.bestOf       = 0;
+    state.description  = "";
+    state.hasWinner    = false;
+    state.nextRoundId  = 0;
+    state.numTeams     = 0;
+    state.rivals       = [];
     state.tournamentId = 0;
     state.winnerTeamId = 0;
   }

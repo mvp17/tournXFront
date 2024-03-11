@@ -27,28 +27,17 @@ export const useTournamentInvitationsStore = defineStore('tournamentInvitations'
     },
     actions: {
       async addTournamentInvitation(newTournamentInvitation: TournamentInvitationRequestDto) {
-        const apiResponse = await http.post(
-          '/tournament-invitations',
-          newTournamentInvitation
-        );
-        this.tournamentInvitations = [
-          ...this.tournamentInvitations,
-          apiResponse.data,
-        ];
+        const apiResponse = await http.post('/tournamentInvitation', newTournamentInvitation);
+        this.tournamentInvitations = [...this.tournamentInvitations, apiResponse.data];
       },
       async updateTournamentInvitation(id: number, currentTournamentInvitation: TournamentInvitationRequestDto) {
-        const apiResponse = await http.put(
-          `/tournament-invitations/${id}`,
-          currentTournamentInvitation
-        );
-        let tournamentInvitationsState = this.tournamentInvitations.filter(
-          (tournamentInvitation) => tournamentInvitation.id !== id
-        );
+        const apiResponse = await http.put(`/tournamentInvitation/${id}`, currentTournamentInvitation);
+        let tournamentInvitationsState = this.tournamentInvitations.filter((tournamentInvitation) => tournamentInvitation.id !== id);
         tournamentInvitationsState.push(apiResponse.data);
         this.tournamentInvitations = tournamentInvitationsState;
       },
       async removeTournamentInvitation(id: number) {
-        await http.delete(`/tournament-invitations/${id}`);
+        await http.delete(`/tournamentInvitation/${id}`);
         this.tournamentInvitations = this.tournamentInvitations.filter(
           (tournamentInvitation) => tournamentInvitation.id !== id
         );

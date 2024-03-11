@@ -34,7 +34,7 @@ export const useMatchesStore = defineStore('matches', {
       this.matches = matchesState;
     },
     async removeMatch(id: number) {
-      await http.delete(`/matches/${id}`);
+      await http.delete(`/match/${id}`);
       this.matches = this.matches.filter((match) => match.id !== id);
     },
   },

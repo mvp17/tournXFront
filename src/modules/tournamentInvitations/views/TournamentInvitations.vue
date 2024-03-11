@@ -28,15 +28,15 @@
         ></v-select>
 
         <v-select
-          v-model="state.invitesTo_playerId"
+          v-model="state.invites_playerId"
           :items="players"
-          :error-messages="(v$.invitesTo_playerId.$errors as VuelidateError[]).map((e) => e.$message)"
+          :error-messages="(v$.invites_playerId.$errors as VuelidateError[]).map((e) => e.$message)"
           label="Invites player"
           required
           item-title="username"
           item-value="id"
-          @change="v$.invitesTo_playerId.$touch"
-          @blur="v$.invitesTo_playerId.$touch"
+          @change="v$.invites_playerId.$touch"
+          @blur="v$.invites_playerId.$touch"
         ></v-select>
 
         <v-text-field
@@ -70,7 +70,7 @@
           >
             <td>{{ tournamentInvitation.invitesTo_tournamentId }}</td>
             <td>{{ tournamentInvitation.teamId }}</td>
-            <td>{{ tournamentInvitation.invitesTo_playerId }}</td>
+            <td>{{ tournamentInvitation.invites_playerId }}</td>
             <td>{{ tournamentInvitation.message }}</td>
           </tr>
         </tbody>
@@ -107,7 +107,7 @@
     invitesTo_tournamentId: 0,
     teamId: 0,
     message: "",
-    invitesTo_playerId: ""
+    invites_playerId: ""
   };
 
   const state = reactive({
@@ -118,15 +118,16 @@
     invitesTo_tournamentId: { required, numeric, mustBeGreaterThan0 },
     teamId:                 { required, numeric, mustBeGreaterThan0 },
     message:                { required },
-    invitesTo_playerId:     { required },
+    invites_playerId:     { required },
   };
 
   const v$ = useVuelidate(rules, state);
 
-  onMounted(() => {
-    getTournamentInvitations();
-    getTeams();
-    getPlayers();
+  onMounted(async () => {
+    await tournamentInvitationsStore.getAll;
+    await tournamentsStore.getAll;
+    await teamsStore.getAll;
+    await playersStore.getAll;
   });
 
   async function submit() {
@@ -135,35 +136,25 @@
       invitesTo_tournamentId: 0,
       teamId: 0,
       message: "",
-      invitesTo_playerId: ""
+      invites_playerId: ""
     };
     if (result) {
       request.invitesTo_tournamentId = state.invitesTo_tournamentId;
       request.teamId                 = state.teamId;
-      request.invitesTo_playerId     = state.invitesTo_playerId;
+      request.invites_playerId       = state.invites_playerId;
       request.message                = state.message;
 
       await tournamentInvitationsStore.addTournamentInvitation(request);
+      await tournamentInvitationsStore.getAll;
+      clear();
     }
     else alert("Validation form failed!");
-  }
-
-  async function getTournamentInvitations() {
-    await tournamentInvitationsStore.getAll;
-  }
-
-  async function getTeams() {
-    await teamsStore.getAll;
-  }
-
-  async function getPlayers() {
-    await playersStore.getAll;
   }
 
   function clear() {
     v$.value.$reset();
     state.invitesTo_tournamentId = 0;
-    state.invitesTo_playerId     = "";
+    state.invites_playerId       = "";
     state.message                = "";
     state.teamId                 = 0;
   }

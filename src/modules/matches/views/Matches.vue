@@ -95,7 +95,6 @@
     ...initialState,
   });
   
-  
   const rules = {
     description:  { required },
     winnerTeamId: { required, numeric, mustBeGreaterThan0 },
@@ -105,10 +104,10 @@
   
   const v$ = useVuelidate(rules, state);
   
-  onMounted(() => {
-    getMatches();
-    getTeams();
-    getRounds();
+  onMounted(async () => {
+    await matchesStore.getAll;
+    await teamsStore.getAll;
+    await roundsStore.getAll;
   });
   
   async function submit() {
@@ -125,29 +124,20 @@
       request.winnerTeamId = state.winnerTeamId;
       request.roundId      = state.roundId;
       request.hasWinner    = state.hasWinner;
+
       console.log(request)
-      matchesStore.addMatch(request);
+      await matchesStore.addMatch(request);
+      await matchesStore.getAll;
+      clear();
     }
     else alert("Validation form failed!");
   }
   
-  function getMatches() {
-    matchesStore.getAll;
-  }
-
-  function getTeams() {
-    teamsStore.getAll;
-  }
-
-  function getRounds() {
-    roundsStore.getAll;
-  }
-  
   function clear() {
     v$.value.$reset();
-    state.description = "";
+    state.description  = "";
     state.winnerTeamId = 0;
-    state.roundId = 0;
-    state.hasWinner = false;
+    state.roundId      = 0;
+    state.hasWinner    = false;
   }
 </script>
