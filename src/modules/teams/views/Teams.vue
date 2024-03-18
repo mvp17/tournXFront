@@ -79,10 +79,24 @@
     <v-col>
       <v-data-table
         :items="teams"
+        :headers="headers"
+        :hover="true"
         class="elevation-1"
-        item-key="name"
+        item-key="id"
         items-per-page="5"
-      ></v-data-table>
+      >
+        <template v-slot:headers>
+          <tr>
+            <th v-for="header in headers" :key="header.text">
+              {{ header.text }}
+            </th>
+          </tr>
+        </template>
+        <template v-slot:[`item.action`]="{ item }">
+          <v-btn @click="editTeam(item)" color="warning"> edit </v-btn>
+          <v-btn @click="deleteTeam(item.id)" color="error"> delete </v-btn>
+        </template>
+      </v-data-table>
     </v-col>
   </v-row>
 </template>
@@ -98,6 +112,7 @@
   import { VuelidateError } from '../../../core/interfaces/VuelidateError';
   import { TeamRequestDto } from '../models/teamRequestDto';
   import { usePlayerStore } from '../../users/stores/playerStore';
+  import { Team } from '../models/team';
 
   const teamsStore = useTeamsStore();
   const teams = computed(() => teamsStore.teams);
@@ -108,20 +123,27 @@
     { level: "Amateur",      value: 1 },
     { level: "Professional", value: 2 }
   ];
-
+  const headers = [
+    { text: 'Id',               value: 'id' },
+    { text: 'Name',             value: 'name' },
+    { text: 'Level',            value: 'level' },
+    { text: 'Game',             value: 'game' },
+    { text: 'Max Players',      value: 'maxPlayers' },
+    { text: 'Leader Player Id', value: 'leaderPlayerId' },
+    { text: 'Players',          value: 'players' },
+    { text: 'Actions',          value: 'action' },
+  ];
   const initialState = {
     name: '',
     level: 0,
     game: '',
     maxPlayers: 0,
     leaderPlayerId: "",
-    players: []
+    players: [] as string[]
   };
-
   const state = reactive({
     ...initialState,
   });
-
   const rules = {
     name:           { required, minLength: minLength(5) },
     level:          { required, numeric },
@@ -132,6 +154,7 @@
   };
 
   const v$ = useVuelidate(rules, state);
+  let teamId = 0;
 
   onMounted(async () => {
     await teamsStore.getAll;
@@ -157,11 +180,31 @@
       request.leaderPlayerId = state.leaderPlayerId;
       request.players        = toRaw(state.players);
       
-      await teamsStore.addTeam(request);
+      if (teamId !== 0) {
+        await teamsStore.updateTeam(teamId, request);
+        teamId = 0;
+      }
+      else
+        await teamsStore.addTeam(request);
+
       await teamsStore.getAll;
       clear();
     }
     else alert("Validation form failed!");
+  }
+
+  async function editTeam(team: Team) {
+    state.name           = team.name;
+    state.level          = team.level;
+    state.game           = team.game;
+    state.maxPlayers     = team.maxPlayers;
+    state.leaderPlayerId = team.leaderPlayerId;
+    state.players        = team.players;
+    teamId               = team.id;
+  }
+
+  async function deleteTeam(id: number) {
+    await teamsStore.removeTeam(id);
   }
 
   function clear() {

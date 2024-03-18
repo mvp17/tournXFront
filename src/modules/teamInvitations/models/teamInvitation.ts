@@ -1,6 +1,6 @@
 export interface TeamInvitation {
     id: number, 
-    playerId: number, 
+    playerId: string, 
     teamId: number, 
     message: string,
     accepted: boolean

@@ -1,7 +1,7 @@
 export interface Match {
     id: number,
     description: string,
-    winner: number,
-    round: number,
+    winnerTeamId: number,
+    roundId: number,
     hasWinner: boolean
 }

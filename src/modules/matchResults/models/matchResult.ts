@@ -1,6 +1,6 @@
 export interface MatchResult {
     id: number, 
-    matchId: string, 
-    winnerTeamId: string, 
+    matchId: number, 
+    winnerTeamId: number, 
     result: string
 }

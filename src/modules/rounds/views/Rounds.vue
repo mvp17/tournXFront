@@ -104,10 +104,24 @@
       <v-col>
         <v-data-table
           :items="rounds"
+          :headers="headers"
+          :hover="true"
           class="elevation-1"
           item-key="name"
           items-per-page="5"
-        ></v-data-table>
+        >
+          <template v-slot:headers>
+            <tr>
+              <th v-for="header in headers" :key="header.text">
+                {{ header.text }}
+              </th>
+            </tr>
+          </template>
+          <template v-slot:[`item.action`]="{ item }">
+            <v-btn @click="editRound(item)" color="warning"> edit </v-btn>
+            <v-btn @click="deleteRound(item.id)" color="error"> delete </v-btn>
+          </template>
+        </v-data-table>
       </v-col>
     </v-row>
 </template>
@@ -125,6 +139,7 @@
   import { useTeamsStore } from '../../teams/stores/teamStore';
   import { mustBeGreaterThan0 } from '../../../core/utils/functions';
   import { useTournamentsStore } from '../../tournaments/stores/tournamentStore';
+import { Round } from '../models/round';
   
   const roundsStore = useRoundsStore();
   const rounds = computed(() => toRaw(roundsStore.rounds));
@@ -132,22 +147,31 @@
   const teams = computed(() => toRaw(teamsStore.teams));
   const tournamentsStore = useTournamentsStore();
   const tournaments = computed(() => toRaw(tournamentsStore.tournaments));
-  
+  const headers = [
+    { text: 'Id',             value: 'id'},
+    { text: 'Description',    value: 'description'},
+    { text: 'Best Of',        value: 'bestOf'},
+    { text: 'Num Teams',      value: 'numTeams'},
+    { text: 'Winner Team Id', value: 'winnerTeamId'},
+    { text: 'Rivals',         value: 'rivals'},
+    { text: 'Next Round Id',  value: 'nextRoundId'},
+    { text: 'Tournament Id',  value: 'tournamentId'},
+    { text: 'Has winner ?',   value: 'hasWinner'},
+    { text: 'Actions',          value: 'action' },
+  ];
   const initialState = {
     bestOf: 0,
     description: "",
     numTeams: 0,
     winnerTeamId: 0,
-    rivals: [],
+    rivals: [] as number[],
     nextRoundId: 0,
     tournamentId: 0,
     hasWinner: false
   };
-  
   const state = reactive({
     ...initialState,
   });
-  
   const rules = {
     bestOf:       { required, numeric },
     description:  { required },
@@ -160,6 +184,7 @@
   };
   
   const v$ = useVuelidate(rules, state);
+  let roundId = 0;
   
   onMounted(async () => {
     await roundsStore.getAll;
@@ -189,11 +214,33 @@
       request.tournamentId = state.tournamentId;
       request.winnerTeamId = state.winnerTeamId;
 
-      await roundsStore.addRound(request);
+      if (roundId !== 0) {
+        await roundsStore.updateRound(roundId, request);
+        roundId = 0;
+      }
+      else
+        await roundsStore.addRound(request);
+      
       await roundsStore.getAll;
       clear();
     }
     else alert("Validation form failed!");
+  }
+
+  async function editRound(round: Round) {
+    state.bestOf       = round.bestOf;
+    state.description  = round.description;
+    state.hasWinner    = round.hasWinner;
+    state.nextRoundId  = round.nextRoundId;
+    state.numTeams     = round.numTeams;
+    state.rivals       = round.rivals;
+    state.tournamentId = round.tournamentId;
+    state.winnerTeamId = round.winnerTeamId;
+    roundId            = round.id;
+  }
+
+  async function deleteRound(id: number) {
+    await roundsStore.removeRound(id);
   }
   
   function clear() {

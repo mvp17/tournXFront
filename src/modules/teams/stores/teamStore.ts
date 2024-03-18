@@ -27,7 +27,7 @@ export const useTeamsStore = defineStore('teams', {
       const apiResponse = await http.post('/team', newTeam);
       this.teams = [...this.teams, apiResponse.data];
     },
-    async updateTeam(id: number, currentTeam: Team) {
+    async updateTeam(id: number, currentTeam: TeamRequestDto) {
       const apiResponse = await http.put(`/team/${id}`, currentTeam);
       let teamsState = this.teams.filter((team) => team.id !== id);
       teamsState.push(apiResponse.data);

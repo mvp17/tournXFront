@@ -57,10 +57,12 @@
       <v-table fixed-header>
         <thead>
           <tr>
+            <th class="text-left">Id</th>
             <th class="text-left">Tournament</th>
             <th class="text-left">Team</th>
             <th class="text-left">Player</th>
             <th class="text-left">Message</th>
+            <th class="text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -68,10 +70,15 @@
             v-for="tournamentInvitation in tournamentInvitations"
             :key="tournamentInvitation.invitesTo_tournamentId"
           >
+            <td>{{ tournamentInvitation.id }}</td>  
             <td>{{ tournamentInvitation.invitesTo_tournamentId }}</td>
             <td>{{ tournamentInvitation.teamId }}</td>
             <td>{{ tournamentInvitation.invites_playerId }}</td>
             <td>{{ tournamentInvitation.message }}</td>
+            <td>
+              <v-btn color="warning" class="me-4" @click="editTournamentInvitation(tournamentInvitation)"> edit </v-btn>
+              <v-btn color="error" class="me-4" @click="deleteTournamentInvitation(tournamentInvitation.id)"> delete </v-btn>
+            </td>
           </tr>
         </tbody>
       </v-table>
@@ -93,6 +100,7 @@
   import { useTeamsStore } from '../../teams/stores/teamStore';
   import { mustBeGreaterThan0 } from '../../../core/utils/functions';
   import { usePlayerStore } from '../../users/stores/playerStore';
+import { TournamentInvitation } from '../models/tournamentInvitation';
 
   const tournamentInvitationsStore = useTournamentInvitationsStore();
   const tournamentInvitations = computed(() => tournamentInvitationsStore.tournamentInvitations);
@@ -118,10 +126,11 @@
     invitesTo_tournamentId: { required, numeric, mustBeGreaterThan0 },
     teamId:                 { required, numeric, mustBeGreaterThan0 },
     message:                { required },
-    invites_playerId:     { required },
+    invites_playerId:       { required },
   };
 
   const v$ = useVuelidate(rules, state);
+  let tournamentInvitationId = 0;
 
   onMounted(async () => {
     await tournamentInvitationsStore.getAll;
@@ -144,11 +153,29 @@
       request.invites_playerId       = state.invites_playerId;
       request.message                = state.message;
 
-      await tournamentInvitationsStore.addTournamentInvitation(request);
+      if (tournamentInvitationId !== 0) {
+        await tournamentInvitationsStore.updateTournamentInvitation(tournamentInvitationId, request);
+        tournamentInvitationId = 0;        
+      }
+      else
+        await tournamentInvitationsStore.addTournamentInvitation(request);
+
       await tournamentInvitationsStore.getAll;
       clear();
     }
     else alert("Validation form failed!");
+  }
+
+  async function editTournamentInvitation(tournamentInvitation: TournamentInvitation) {
+    state.invitesTo_tournamentId = tournamentInvitation.invitesTo_tournamentId;
+    state.invites_playerId       = tournamentInvitation.invites_playerId;
+    state.message                = tournamentInvitation.message;
+    state.teamId                 = tournamentInvitation.teamId;
+    tournamentInvitationId       = tournamentInvitation.id;
+  }
+
+  async function deleteTournamentInvitation(id: number) {
+    await tournamentInvitationsStore.removeTournamentInvitation(id);
   }
 
   function clear() {

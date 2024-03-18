@@ -58,6 +58,7 @@
             <th class="text-left">Team</th>
             <th class="text-left">Message</th>
             <th class="text-left">Invitation accepted</th>
+            <th class="text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -69,6 +70,10 @@
             <td>{{ teamInvitation.teamId }}</td>
             <td>{{ teamInvitation.message }}</td>
             <td>{{ teamInvitation.accepted }}</td>
+            <td>
+              <v-btn color="warning" class="me-4" @click="editTeamInvitation(teamInvitation)"> edit </v-btn>
+              <v-btn color="error" class="me-4" @click="deleteTeamInvitation(teamInvitation.id)"> delete </v-btn>
+            </td>
           </tr>
         </tbody>
       </v-table>
@@ -89,6 +94,7 @@
   import { usePlayerStore } from '../../users/stores/playerStore';
   import { useTeamsStore } from '../../teams/stores/teamStore';
   import { mustBeGreaterThan0 } from '../../../core/utils/functions';
+  import { TeamInvitation } from '../models/teamInvitation';
 
   const teamInvitationsStore = useTeamInvitationsStore();
   const teamInvitations = computed(() => teamInvitationsStore.teamInvitations);
@@ -117,8 +123,11 @@
 
   const v$ = useVuelidate(rules, state);
 
+  let teamInvitationId = 0;
+
   onMounted(async () => {
     await teamInvitationsStore.getAll;
+    await teamsStore.getAll;
     await playersStore.getAll;
   });
 
@@ -136,11 +145,29 @@
       request.message  = state.message;
       request.accepted = state.accepted
 
-      await teamInvitationsStore.addTeamInvitation(request);
+      if (teamInvitationId !== 0) {
+        await teamInvitationsStore.updateTeamInvitation(teamInvitationId, request);
+        teamInvitationId = 0;
+      }
+      else
+        await teamInvitationsStore.addTeamInvitation(request);
+
       await teamInvitationsStore.getAll;
       clear();
     }
     else alert("Validation form failed!");
+  }
+
+  async function editTeamInvitation(teamInvitation: TeamInvitation) {
+    state.playerId   = teamInvitation.playerId;
+    state.teamId     = teamInvitation.teamId;
+    state.message    = teamInvitation.message;
+    state.accepted   = teamInvitation.accepted;
+    teamInvitationId = teamInvitation.id
+  }
+
+  async function deleteTeamInvitation(id: number) {
+    await teamInvitationsStore.removeTeamInvitation(id);
   }
 
   function clear() {

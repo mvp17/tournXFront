@@ -4,6 +4,7 @@ export interface Team {
     level: number, 
     game: string, 
     maxPlayers: number,
-    leaderPlayerId: number,
-    players: number[]
+    leaderPlayerId: string,
+    players: string[],
+    action: string
 }

@@ -156,10 +156,24 @@
     <v-col>
       <v-data-table
         :items="tournaments"
+        :headers="headers"
+        :hover="true"
         class="elevation-1"
         item-key="name"
         items-per-page="5"
-      ></v-data-table>
+      >
+        <template v-slot:headers>
+          <tr>
+            <th v-for="header in headers" :key="header.text">
+              {{ header.text }}
+            </th>
+          </tr>
+        </template>
+        <template v-slot:[`item.action`]="{ item }">
+          <v-btn @click="editTournament(item)" color="warning"> edit </v-btn>
+          <v-btn @click="deleteTournament(item.id)" color="error"> delete </v-btn>
+        </template>
+      </v-data-table>
     </v-col>
   </v-row>
 </template>
@@ -176,6 +190,7 @@
   import { TournamentRequestDto } from '../models/tournamentRequestDto';
   import { useTeamsStore } from '../../teams/stores/teamStore';
   import { mustBeGreaterThan0 } from '../../../core/utils/functions';
+  import { Tournament } from '../models/tournament';
 
   const tournamentsStore = useTournamentsStore();
   const tournaments = computed(() => tournamentsStore.tournaments);
@@ -194,8 +209,25 @@
     { state: "Finished",      value: 4 },
     { state: "Closed",        value: 5 },
     { state: "To archive",    value: 6 }
-  ]
-
+  ];
+  const headers = [
+    { text: 'Id',               value: 'id' },
+    { text: 'Name',             value: 'name' },
+    { text: 'Level',            value: 'level' },
+    { text: 'Game',             value: 'game' },
+    { text: 'Type',             value: 'type' },
+    { text: 'Description',      value: 'description' },
+    { text: 'Min Participants', value: 'minParticipants' },
+    { text: 'Max Participants', value: 'maxParticipants' },
+    { text: 'Min Team Players', value: 'minTeamPlayers' },
+    { text: 'Max Team Players', value: 'maxTeamPlayers' },
+    { text: 'Max Team Players', value: 'maxTeamPlayers' },
+    { text: 'Participants',     value: 'participants' },
+    { text: 'Winner Team Id',   value: 'winnerTeamId'},
+    { text: 'Best Of',          value: 'bestOf' },
+    { text: 'State',            value: 'state' },
+    { text: 'Actions',          value: 'action'},
+  ];
   const initialState = {
     name: "",
     level: 0,
@@ -206,16 +238,14 @@
     maxParticipants: 0,
     minTeamPlayers: 0,
     maxTeamPlayers: 0,
-    participants: [],
+    participants: [] as number[],
     winnerTeamId: 0,
     bestOf: 0,
     state: 0
   };
-
   const state = reactive({
     ...initialState,
   });
-
   const rules = {
     name:            { required, minLength: minLength(5) },
     level:           { required, numeric },
@@ -233,6 +263,7 @@
   };
 
   const v$ = useVuelidate(rules, state);
+  let tournamentId = 0;
 
   onMounted(async () => {
     await tournamentsStore.getAll;
@@ -271,11 +302,37 @@
       request.bestOf          = state.bestOf;
       request.state           = state.state;
 
-      await tournamentsStore.addTournament(request);
+      if (tournamentId !== 0) {
+        await tournamentsStore.updateTournament(tournamentId, request);
+        tournamentId = 0; 
+      }
+      else
+        await tournamentsStore.addTournament(request);
       await tournamentsStore.getAll;
       clear();
     }
     else alert("Validation form failed!");
+  }
+
+  async function editTournament(tournament: Tournament) {
+    state.name            = tournament.name;
+    state.level           = tournament.level;
+    state.game            = tournament.game;
+    state.type            = tournament.type;
+    state.description     = tournament.description;
+    state.minParticipants = tournament.minParticipants;
+    state.maxParticipants = tournament.maxParticipants;
+    state.minTeamPlayers  = tournament.minTeamPlayers;
+    state.maxTeamPlayers  = tournament.maxTeamPlayers;
+    state.participants    = tournament.participants;
+    state.winnerTeamId    = tournament.winnerTeamId;
+    state.bestOf          = tournament.bestOf;
+    state.state           = tournament.state;
+    tournamentId          = tournament.id;
+  }
+
+  async function deleteTournament(id: number) {
+    await tournamentsStore.removeTournament(id);
   }
 
   function clear() {

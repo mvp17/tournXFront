@@ -55,10 +55,23 @@
     <v-col>
       <v-data-table
         :items="matches"
+        :headers="headers"
         class="elevation-1"
         item-key="name"
         items-per-page="5"
-      ></v-data-table>
+      >
+        <template v-slot:headers>
+          <tr>
+            <th v-for="header in headers" :key="header.text">
+              {{ header.text }}
+            </th>
+          </tr>
+        </template>
+        <template v-slot:[`item.action`]="{ item }">
+          <v-btn @click="editMatch(item)" color="warning"> edit </v-btn>
+          <v-btn @click="deleteMatch(item.id)" color="error"> delete </v-btn>
+        </template>
+      </v-data-table>
     </v-col>
   </v-row>
 </template>
@@ -76,6 +89,7 @@
   import { useTeamsStore } from '../../teams/stores/teamStore';
   import { useRoundsStore } from '../../rounds/stores/roundStore';
   import { mustBeGreaterThan0 } from '../../../core/utils/functions';
+  import { Match } from '../models/match';
   
   const matchesStore = useMatchesStore();
   const matches = computed(() => matchesStore.matches);
@@ -83,7 +97,14 @@
   const teams = computed(() => toRaw(teamsStore.teams));
   const roundsStore = useRoundsStore();
   const rounds = computed(() => toRaw(roundsStore.rounds));
-
+  const headers = [
+    { text: 'Id',             value: 'id' },
+    { text: 'Description',    value: 'description' },
+    { text: 'Winner Team Id', value: 'winnerTeamId' },
+    { text: 'Round Id',       value: 'roundId' },
+    { text: 'Has winner ?',   value: 'hasWinner' },
+    { text: 'Actions',        value: 'action' },
+  ];
   const initialState = {
     description: '',
     winnerTeamId: 0,
@@ -103,7 +124,8 @@
   };
   
   const v$ = useVuelidate(rules, state);
-  
+  let matchId = 0;
+
   onMounted(async () => {
     await matchesStore.getAll;
     await teamsStore.getAll;
@@ -125,12 +147,29 @@
       request.roundId      = state.roundId;
       request.hasWinner    = state.hasWinner;
 
-      console.log(request)
-      await matchesStore.addMatch(request);
+      if (matchId !== 0){
+        await matchesStore.updateMatch(matchId, request);
+        matchId = 0; 
+      }
+      else
+        await matchesStore.addMatch(request);
+
       await matchesStore.getAll;
       clear();
     }
     else alert("Validation form failed!");
+  }
+
+  async function editMatch(match: Match) {
+    state.description  = match.description;
+    state.winnerTeamId = match.winnerTeamId;
+    state.roundId      = match.roundId;
+    state.hasWinner    = match.hasWinner;
+    matchId            = match.id;
+  }
+
+  async function deleteMatch(id: number) {
+    await matchesStore.removeMatch(id);
   }
   
   function clear() {

@@ -49,6 +49,7 @@
             <th class="text-left">Match</th>
             <th class="text-left">Winner team</th>
             <th class="text-left">Result</th>
+            <th class="text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -57,6 +58,10 @@
             <td>{{ matchResult.matchId }}</td>
             <td>{{ matchResult.winnerTeamId }}</td>
             <td>{{ matchResult.result }}</td>
+            <td>
+              <v-btn color="warning" class="me-4" @click="editMatchResult(matchResult)"> edit </v-btn>
+              <v-btn color="error" class="me-4" @click="deleteMatchResult(matchResult.id)"> delete </v-btn>
+            </td>
           </tr>
         </tbody>
       </v-table>
@@ -77,6 +82,7 @@
   import { useMatchesStore } from '../../matches/stores/matchStore';
   import { useTeamsStore } from '../../teams/stores/teamStore';
   import { mustBeGreaterThan0 } from '../../../core/utils/functions';
+import { MatchResult } from '../models/matchResult';
 
   const matchResultsStore = useMatchResultsStore();
   const matchResults = computed(() => matchResultsStore.matchResults);
@@ -103,8 +109,12 @@
 
   const v$ = useVuelidate(rules, state);
 
+  let matchResultId = 0;
+
   onMounted(async () => {
     await matchResultsStore.getAll;
+    await matchesStore.getAll;
+    await teamsStore.getAll;
   });
 
   async function submit() {
@@ -120,11 +130,28 @@
       request.winnerTeamId = state.winnerTeamId;
       request.result       = state.result;
       
-      await matchResultsStore.addMatchResult(request);
+      if (matchResultId !== 0) {
+        await matchResultsStore.updateMatchResult(matchResultId, request);
+        matchResultId = 0;
+      }
+      else
+        await matchResultsStore.addMatchResult(request);
+      
       await matchResultsStore.getAll;
       clear();
     }
     else alert("Validation form failed!");
+  }
+
+  async function editMatchResult(matchResult: MatchResult) {
+    state.matchId      = matchResult.matchId;
+    state.winnerTeamId = matchResult.winnerTeamId;
+    state.result       = matchResult.result;
+    matchResultId      = matchResult.id;
+  }
+
+  async function deleteMatchResult(id: number) {
+    await matchResultsStore.removeMatchResult(id);
   }
 
   function clear() {
