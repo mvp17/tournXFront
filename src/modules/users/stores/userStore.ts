@@ -24,7 +24,6 @@ export const useUserStore = defineStore('users', {
     },
     async loginPlayer(currentPlayer: LoginDto) {
       const data = await http.post("/player/login", currentPlayer);
-      
       this.user.email = data.data.email;
       this.user.token = data.data.token;
       this.user.username = data.data.username;
