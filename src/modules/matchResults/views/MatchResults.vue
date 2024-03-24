@@ -82,7 +82,7 @@
   import { useMatchesStore } from '../../matches/stores/matchStore';
   import { useTeamsStore } from '../../teams/stores/teamStore';
   import { mustBeGreaterThan0 } from '../../../core/utils/functions';
-import { MatchResult } from '../models/matchResult';
+  import { MatchResult } from '../models/matchResult';
 
   const matchResultsStore = useMatchResultsStore();
   const matchResults = computed(() => matchResultsStore.matchResults);

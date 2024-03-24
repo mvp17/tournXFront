@@ -32,7 +32,8 @@
                 required
                 @input="v$.password.$touch"
                 @blur="v$.password.$touch"
-            ></v-text-field> 
+            ></v-text-field>
+
             <v-btn color="primary" class="me-4" @click="router.go(-1);"> back </v-btn>
             <v-btn color="success" class="me-4" @click="submit"> submit </v-btn>
             <v-btn color="error" @click="clear"> clear </v-btn>
@@ -90,11 +91,10 @@
 </script>
 
 <style>
-.center-container {
-  display: flex;
-  justify-content: center; /* Horizontally center */
-  align-items: center; /* Vertically center */
-  height: 100vh; /* Adjust as needed */
-}
+    .center-container {
+    display: flex;
+    justify-content: center; /* Horizontally center */
+    align-items: center; /* Vertically center */
+    height: 100vh; /* Adjust as needed */
+    }
 </style>
-../../../plugins/router/router

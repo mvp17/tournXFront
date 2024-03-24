@@ -23,6 +23,7 @@
           @input="v$.password.$touch"
           @blur="v$.password.$touch"
         ></v-text-field>
+        
         <v-btn color="primary" class="me-4" @click="router.push('/register');"> Sign Up </v-btn>
         <v-btn color="success" class="me-4" @click="submit"> submit </v-btn>
         <v-btn color="error" @click="clear"> clear </v-btn>
@@ -30,6 +31,7 @@
     </v-card>
   </div>
 </template>
+
 
 <script setup lang="ts">
   import { reactive } from 'vue';
@@ -83,10 +85,10 @@
 </script>
 
 <style>
-.center-container {
-  display: flex;
-  justify-content: center; /* Horizontally center */
-  align-items: center; /* Vertically center */
-  height: 100vh; /* Adjust as needed */
-}
+  .center-container {
+    display: flex;
+    justify-content: center; /* Horizontally center */
+    align-items: center; /* Vertically center */
+    height: 100vh; /* Adjust as needed */
+  }
 </style>

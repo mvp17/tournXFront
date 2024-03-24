@@ -139,7 +139,7 @@
   import { useTeamsStore } from '../../teams/stores/teamStore';
   import { mustBeGreaterThan0 } from '../../../core/utils/functions';
   import { useTournamentsStore } from '../../tournaments/stores/tournamentStore';
-import { Round } from '../models/round';
+  import { Round } from '../models/round';
   
   const roundsStore = useRoundsStore();
   const rounds = computed(() => toRaw(roundsStore.rounds));

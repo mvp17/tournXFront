@@ -100,7 +100,7 @@
   import { useTeamsStore } from '../../teams/stores/teamStore';
   import { mustBeGreaterThan0 } from '../../../core/utils/functions';
   import { usePlayerStore } from '../../users/stores/playerStore';
-import { TournamentInvitation } from '../models/tournamentInvitation';
+  import { TournamentInvitation } from '../models/tournamentInvitation';
 
   const tournamentInvitationsStore = useTournamentInvitationsStore();
   const tournamentInvitations = computed(() => tournamentInvitationsStore.tournamentInvitations);
